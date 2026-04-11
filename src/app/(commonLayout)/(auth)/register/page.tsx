@@ -31,7 +31,8 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
   password: z.string().min(6, "Password must be at least 6 characters."),
-  confirmPassword: z.string()
+  confirmPassword: z.string(),
+  isAdmin: z.boolean().default(false),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -49,6 +50,7 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      isAdmin: false,
     },
   });
 
@@ -59,6 +61,7 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
         name: values.name,
+        role: values.isAdmin ? "ADMIN" : "USER",
     });
     
     if (error) {
@@ -139,6 +142,25 @@ export default function RegisterPage() {
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="isAdmin"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 mt-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="mt-1"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Register as Admin (For testing)</FormLabel>
+                    </div>
                   </FormItem>
                 )}
               />
