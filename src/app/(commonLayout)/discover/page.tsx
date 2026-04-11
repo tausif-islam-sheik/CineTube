@@ -17,7 +17,7 @@ export default function DiscoverPage() {
 
   const filters = {
     q: searchParams.get("q") || undefined,
-    genre: searchParams.getAll("genre"),
+    genre: searchParams.get("genre") || undefined,
     yearMin: searchParams.get("yearMin") ? parseInt(searchParams.get("yearMin") as string) : undefined,
     yearMax: searchParams.get("yearMax") ? parseInt(searchParams.get("yearMax") as string) : undefined,
     ratingMin: searchParams.get("ratingMin") ? parseFloat(searchParams.get("ratingMin") as string) : undefined,
@@ -59,7 +59,7 @@ export default function DiscoverPage() {
           <div className="space-y-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 animate-in fade-in duration-500">
               {data.pages.map((page, i) => (
-                page.movies.map((movie) => (
+                page.data.map((movie) => (
                   <Link href={`/movie/${movie.id}`} key={movie.id}>
                     <Card className="overflow-hidden group h-full flex flex-col transition-all hover:ring-2 hover:ring-primary hover:shadow-lg dark:hover:shadow-primary/20">
                       <div className="relative aspect-[2/3] overflow-hidden bg-muted">
@@ -118,7 +118,7 @@ export default function DiscoverPage() {
                 </div>
               ) : hasNextPage ? (
                 <p className="text-sm text-muted-foreground">Scroll down to load more</p>
-              ) : data.pages[0].total === 0 ? (
+              ) : data.pages[0].meta.total === 0 ? (
                 <p className="text-lg font-medium text-muted-foreground py-10">No movies found matching your filters.</p>
               ) : (
                 <p className="text-sm text-muted-foreground">You&apos;ve reached the end of the lineup.</p>

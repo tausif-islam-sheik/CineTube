@@ -4,49 +4,56 @@ import { Movie } from "@/types";
 
 export interface MovieFilters {
   q?: string;
-  genre?: string[];
+  genre?: string;
   yearMin?: number;
   yearMax?: number;
   ratingMin?: number;
 }
 
-interface MovieResponse {
-  movies: Movie[];
-  nextCursor?: string;
-  total: number;
+interface MoviePage {
+  data: Movie[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export function useMovies(filters: MovieFilters) {
-  return useInfiniteQuery<MovieResponse, Error>({
+  return useInfiniteQuery<MoviePage, Error>({
     queryKey: ["movies", "infinite", filters],
     queryFn: async ({ pageParam }) => {
-      const cursor = pageParam as string | undefined;
+      const page = (pageParam as number) ?? 1;
       const params = new URLSearchParams();
-      
-      if (cursor) params.append("cursor", cursor);
+
+      params.append("page", String(page));
+      params.append("limit", "12");
+
       if (filters.q) params.append("search", filters.q);
-      if (filters.genre && filters.genre.length > 0) {
-        filters.genre.forEach((g) => params.append("genre", g));
-      }
-      if (filters.yearMin) params.append("yearMin", filters.yearMin.toString());
-      if (filters.yearMax) params.append("yearMax", filters.yearMax.toString());
-      if (filters.ratingMin) params.append("ratingMin", filters.ratingMin.toString());
-      
-      // Assumes backend REST endpoint is /api/movies
-      const { data } = await apiClient.get(`/api/movies?${params.toString()}`);
+      if (filters.genre) params.append("genre", filters.genre);
+      if (filters.yearMin) params.append("releaseYear", filters.yearMin.toString());
+      if (filters.ratingMin) params.append("minRating", filters.ratingMin.toString());
+
+      const { data } = await apiClient.get(`/api/v1/movies?${params.toString()}`);
       return data;
     },
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.meta;
+      return page < totalPages ? page + 1 : undefined;
+    },
   });
 }
 
 export function useTrendingMovies() {
-    return useQuery<Movie[], Error>({
-        queryKey: ["movies", "trending"],
-        queryFn: async () => {
-            const { data } = await apiClient.get("/api/movies/trending");
-            return data;
-        }
-    })
+  return useQuery<Movie[], Error>({
+    queryKey: ["movies", "trending"],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        "/api/v1/movies?sortBy=rating&order=desc&limit=10"
+      );
+      return data?.data ?? [];
+    },
+  });
 }
