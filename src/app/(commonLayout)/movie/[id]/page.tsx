@@ -10,7 +10,7 @@ import { PlayCircle, Star, Heart, Clock, Calendar } from "lucide-react";
 import { CreateReview } from "@/components/reviews/create-review";
 import { ReviewList } from "@/components/reviews/review-list";
 import { useSession } from "@/lib/auth-client";
-import { toast } from "sonner"; // Assuming sonner from shadcn
+import { toast } from "sonner"; 
 
 export default function MovieDetailsPage() {
   const { id } = useParams();

@@ -7,7 +7,7 @@ import { Popcorn, LayoutDashboard, Film, ShieldAlert, FileText, CheckSquare, Set
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
 
