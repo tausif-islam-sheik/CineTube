@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Star, Clock } from "lucide-react";
 import { useInView } from "react-intersection-observer";
-import { Button } from "@/components/ui/button";
 
 export default function DiscoverPage() {
   const searchParams = useSearchParams();
