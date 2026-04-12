@@ -20,6 +20,7 @@ export default function MovieDetailsPage() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+  const [isMoviePlayerOpen, setIsMoviePlayerOpen] = useState(false);
 
   // Helper to extract YouTube ID and return embed URL
   const getYouTubeEmbedUrl = (url?: string | null) => {
@@ -48,6 +49,20 @@ export default function MovieDetailsPage() {
       },
       enabled: !!session?.user?.id
   });
+
+  const { data: userSubscription } = useQuery({
+      queryKey: ["user-subscription", session?.user?.id],
+      queryFn: async () => {
+          if (!session?.user?.id) return null;
+          const { data } = await apiClient.get(`/api/v1/user/subscription`);
+          return data.data;
+      },
+      enabled: !!session?.user?.id
+  });
+
+  const isFree = movie?.pricing === 'FREE';
+  const hasPremiumAccess = userSubscription?.status === 'ACTIVE' || session?.user?.role === 'ADMIN';
+  const canWatch = isFree || hasPremiumAccess;
 
   const isWatchlisted = watchlists?.some((w: any) => w.movieId === id);
 
@@ -89,16 +104,25 @@ export default function MovieDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-8 animate-in fade-in">
-         <Skeleton className="w-full aspect-video md:aspect-[21/9] rounded-xl" />
-         <div className="grid md:grid-cols-3 gap-8 mt-8">
-             <div className="md:col-span-2 space-y-4">
-                 <Skeleton className="h-10 w-3/4" />
-                 <Skeleton className="h-4 w-full" />
-                 <Skeleton className="h-4 w-full" />
-                 <Skeleton className="h-4 w-2/3" />
-             </div>
-             <Skeleton className="h-96 w-full rounded-xl" />
+      <div className="container mx-auto px-4 py-12 md:py-24 space-y-12 animate-in fade-in">
+         <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start">
+            <Skeleton className="w-full md:w-64 lg:w-80 aspect-[2/3] rounded-2xl shadow-2xl" />
+            <div className="flex-1 space-y-6 pt-4">
+               <div className="flex gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+               </div>
+               <Skeleton className="h-16 w-3/4" />
+               <div className="flex gap-6">
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-6 w-24" />
+               </div>
+               <div className="flex gap-4 pt-4">
+                  <Skeleton className="h-12 w-40 rounded-full" />
+                  <Skeleton className="h-12 w-40 rounded-full" />
+               </div>
+            </div>
          </div>
       </div>
     );
@@ -115,75 +139,121 @@ export default function MovieDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Cinematic Header Overlay */}
-      <div className="relative w-full aspect-[4/3] md:aspect-[21/9] bg-muted overflow-hidden">
-         {movie.posterUrl ? (
-            <img 
-               src={movie.posterUrl} 
-               alt={movie.title}
-               className="w-full h-full object-cover opacity-30"
-            />
-         ) : null}
-         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-         
-         <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 container mx-auto flex flex-col md:flex-row gap-8 items-end">
-            <div className="hidden md:block w-48 lg:w-64 shrink-0 rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10 relative z-10 translate-y-12">
-               {movie.posterUrl ? (
-                  <img src={movie.posterUrl} alt="Poster" className="w-full h-auto object-cover" />
-               ) : (
-                  <div className="w-full aspect-[2/3] bg-secondary flex items-center justify-center">No Poster</div>
-               )}
-            </div>
-
-            <div className="flex-1 space-y-4 z-10">
-               <div className="flex flex-wrap items-center gap-2 mb-2">
-                 {movie.genre.map((g) => (
-                    <span key={g} className="px-2.5 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-medium uppercase tracking-wider">
-                       {g}
-                    </span>
-                 ))}
-               </div>
-               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white drop-shadow-md">
-                 {movie.title}
-               </h1>
-               
-               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300">
-                  <div className="flex items-center gap-1">
-                     <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 drop-shadow" />
-                     <span className="font-bold text-white text-base">{movie.averageRating?.toFixed(1) || "N/A"}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                     <Calendar className="w-4 h-4" />
-                     {movie.releaseYear}
-                  </div>
-                  <div className="flex items-center gap-1">
-                     <Clock className="w-4 h-4" />
-                     {movie.duration ? `${movie.duration} min` : "N/A"}
+      {/* Hero Section */}
+      <div className="w-full bg-gradient-to-br from-zinc-950 via-zinc-950 to-primary/10 border-b border-white/5">
+         <div className="container mx-auto px-4 py-12 md:py-24">
+            <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start lg:items-center">
+               {/* Left: Poster */}
+               <div className="w-full md:w-64 lg:w-80 shrink-0 relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-t from-primary/50 to-transparent rounded-2xl blur-2xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 aspect-[2/3] bg-zinc-900">
+                     {movie.posterUrl ? (
+                        <img 
+                           src={movie.posterUrl} 
+                           alt="Poster" 
+                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        />
+                     ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-600 font-bold p-12 text-center select-none italic">
+                           No Poster Available
+                        </div>
+                     )}
                   </div>
                </div>
 
-               <div className="flex flex-wrap gap-4 pt-4">
-                  <Button 
-                    size="lg" 
-                    className="rounded-full shadow-lg gap-2 px-8"
-                    onClick={() => setIsTrailerOpen(true)}
-                    disabled={!movie.trailerUrl && !movie.youtubeLink}
-                  >
-                     <PlayCircle className="w-5 h-5" />
-                     Watch Trailer
-                  </Button>
-                  {session && (
-                    <Button 
-                      size="lg" 
-                      variant={isWatchlisted ? "secondary" : "outline"}
-                      className="rounded-full gap-2 transition-all hover:scale-105"
-                      onClick={() => toggleWatchlistMutation.mutate()}
-                      disabled={toggleWatchlistMutation.isPending}
-                    >
-                       <Heart className={`w-5 h-5 ${isWatchlisted ? "fill-current text-red-500" : ""}`} />
-                       {isWatchlisted ? "In Watchlist" : "Add to Watchlist"}
-                    </Button>
-                  )}
+               {/* Right: Info */}
+               <div className="flex-1 space-y-8">
+                  <div className="space-y-4">
+                     <div className="flex flex-wrap items-center gap-2">
+                       {movie.genre.map((g) => (
+                          <span key={g} className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-[10px] font-bold uppercase tracking-[0.1em] shadow-sm">
+                             {g}
+                          </span>
+                       ))}
+                       <span className="px-3 py-1 bg-zinc-800 text-zinc-400 border border-white/5 rounded-full text-[10px] font-bold uppercase tracking-[0.1em]">
+                          {movie.platform}
+                       </span>
+                     </div>
+                     
+                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+                       {movie.title}
+                     </h1>
+                     
+                     <div className="flex flex-wrap items-center gap-8 pt-2">
+                        <div className="flex items-center gap-2 group">
+                           <div className="p-2 bg-yellow-400/10 rounded-lg group-hover:bg-yellow-400/20 transition-colors">
+                              <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 drop-shadow" />
+                           </div>
+                           <div className="flex flex-col">
+                              <span className="font-bold text-white text-lg leading-none">{movie.averageRating?.toFixed(1) || "N/A"}</span>
+                              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Rating</span>
+                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                           <div className="p-2 bg-zinc-800 rounded-lg">
+                              <Calendar className="w-4 h-4 text-zinc-400" />
+                           </div>
+                           <div className="flex flex-col">
+                              <span className="font-bold text-zinc-200 text-lg leading-none">{movie.releaseYear}</span>
+                              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Release</span>
+                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                           <div className="p-2 bg-zinc-800 rounded-lg">
+                              <Clock className="w-4 h-4 text-zinc-400" />
+                           </div>
+                           <div className="flex flex-col">
+                              <span className="font-bold text-zinc-200 text-lg leading-none">{movie.duration ? `${movie.duration} min` : "N/A"}</span>
+                              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Duration</span>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 items-center">
+                     <Button 
+                       size="xl" 
+                       className="rounded-full shadow-2xl gap-3 px-10 h-16 text-lg font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
+                       onClick={() => {
+                           if (!session) {
+                               toast.error("Please login to watch");
+                               return;
+                           }
+                           if (canWatch) {
+                               setIsMoviePlayerOpen(true);
+                           } else {
+                               toast.error("Upgrade to Premium to watch this movie");
+                           }
+                       }}
+                     >
+                        <PlayCircle className="w-6 h-6 fill-current" />
+                        {canWatch ? "Watch Now" : "Unlock with Premium"}
+                     </Button>
+
+                     <Button 
+                       size="xl" 
+                       variant="outline"
+                       className="rounded-full shadow-xl gap-2 px-8 h-16 border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all font-bold"
+                       onClick={() => setIsTrailerOpen(true)}
+                       disabled={!movie.trailerUrl && !movie.youtubeLink}
+                     >
+                        Watch Trailer
+                     </Button>
+
+                     {session && (
+                       <Button 
+                         size="icon" 
+                         variant={isWatchlisted ? "secondary" : "outline"}
+                         className={`w-16 h-16 rounded-full transition-all hover:scale-105 border-white/10 ${isWatchlisted ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-white/5 backdrop-blur-md"}`}
+                         onClick={() => toggleWatchlistMutation.mutate()}
+                         disabled={toggleWatchlistMutation.isPending}
+                       >
+                          <Heart className={`w-6 h-6 ${isWatchlisted ? "fill-current" : ""}`} />
+                       </Button>
+                     )}
+                  </div>
                </div>
             </div>
          </div>
@@ -254,6 +324,30 @@ export default function MovieDetailsPage() {
                 allowFullScreen
               />
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMoviePlayerOpen} onOpenChange={setIsMoviePlayerOpen}>
+        <DialogContent className="sm:max-w-7xl p-0 bg-black border-zinc-900 overflow-hidden aspect-video shadow-2xl">
+          <DialogHeader className="sr-only">
+             <DialogTitle>Watching: {movie.title}</DialogTitle>
+          </DialogHeader>
+          <div className="w-full h-full group relative">
+            {isMoviePlayerOpen && (
+              <iframe
+                src={getYouTubeEmbedUrl(movie.youtubeLink) || ""}
+                title={movie.title}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+            
+            <div className="absolute top-4 left-4 p-4 bg-black/60 backdrop-blur-md rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10">
+               <h4 className="text-white font-bold">{movie.title}</h4>
+               <p className="text-zinc-400 text-xs">{movie.releaseYear} • {movie.genre.join(', ')}</p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
