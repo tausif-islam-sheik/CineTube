@@ -152,7 +152,7 @@ export function Navbar() {
                     className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted relative group"
                     aria-label="Watchlist"
                 >
-                    <Heart className="w-5 h-5 group-hover:fill-red-500/10 group-hover:text-red-500 transition-all" />
+                    <Heart className="w-5 h-5 group-hover:fill-primary/10 group-hover:text-primary transition-all" />
                 </button>
             </Link>
           )}
