@@ -137,4 +137,25 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  @keyframes slow-zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+
+  .animate-slow-zoom {
+    animation: slow-zoom 20s ease-in-out infinite alternate;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px 2px var(--primary);
+  }
+
+  .text-shadow-premium {
+    text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  }
+
+  .glass-panel {
+    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/10;
+  }
 }

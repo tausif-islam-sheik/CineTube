@@ -24,8 +24,7 @@ import { Input } from "@/components/ui/input";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/discover", label: "Movies" },
-  { href: "/discover?type=series", label: "Shows" },
-  { href: "/discover?genre=Sport", label: "Sports" },
+  { href: "/discover?type=series", label: "Series" },
   { href: "/discover?pricing=FREE", label: "Free" },
 ];
 
@@ -103,17 +102,7 @@ export function Navbar() {
               {label}
             </Link>
           ))}
-          {session && (
-            <Link
-              href="/watchlist"
-              className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded transition-colors",
-                pathname === "/watchlist" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Watchlist
-            </Link>
-          )}
+
         </div>
 
         {/* ── Right side ── */}
@@ -265,11 +254,7 @@ export function Navbar() {
               {label}
             </Link>
           ))}
-          {session && (
-            <Link href="/watchlist" onClick={() => setMobileOpen(false)} className={cn("block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", pathname === "/watchlist" ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
-              Watchlist
-            </Link>
-          )}
+
           {isAdmin && (
             <Link href="/admin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-yellow-400 hover:bg-yellow-400/10 transition-colors">
               Admin Dashboard
