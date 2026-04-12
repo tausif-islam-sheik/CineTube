@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import apiClient from "@/lib/axios";
 import { Movie } from "@/types";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, Star, Heart, Clock, Calendar } from "lucide-react";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 export default function MovieDetailsPage() {
   const { id } = useParams();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
@@ -57,14 +58,20 @@ export default function MovieDetailsPage() {
           const { data } = await apiClient.get(`/api/v1/user/subscription`);
           return data.data;
       },
-      enabled: !!session?.user?.id
+      enabled: !!session?.user?.id,
+      staleTime: 0,
+      refetchOnWindowFocus: true,
   });
 
   const isFree = movie?.pricing === 'FREE';
-  const hasPremiumAccess = userSubscription?.status === 'ACTIVE' || session?.user?.role === 'ADMIN';
+  const subscriptionActive =
+    !!userSubscription &&
+    String(userSubscription.status).toUpperCase() === "ACTIVE";
+  const hasPremiumAccess =
+    subscriptionActive || session?.user?.role === "ADMIN";
   const canWatch = isFree || hasPremiumAccess;
 
-  const isWatchlisted = watchlists?.some((w: any) => w.movieId === id);
+  const isWatchlisted = Array.isArray(watchlists) && watchlists.some((w: any) => w.movieId === id);
 
   const toggleWatchlistMutation = useMutation({
     mutationFn: async () => {
@@ -219,12 +226,14 @@ export default function MovieDetailsPage() {
                        onClick={() => {
                            if (!session) {
                                toast.error("Please login to watch");
+                               router.push("/login");
                                return;
                            }
                            if (canWatch) {
                                setIsMoviePlayerOpen(true);
                            } else {
-                               toast.error("Upgrade to Premium to watch this movie");
+                               toast.info("Discover our premium plans!");
+                               router.push("/pricing");
                            }
                        }}
                      >

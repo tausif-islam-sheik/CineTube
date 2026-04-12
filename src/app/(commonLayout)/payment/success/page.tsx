@@ -6,16 +6,20 @@ import { CheckCircle2, Ticket, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth-client";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
   useEffect(() => {
-    if (sessionId) {
-      console.log("Payment successful for session:", sessionId);
-    }
-  }, [sessionId]);
+    if (!sessionId || !session?.user?.id) return;
+    void queryClient.invalidateQueries({ queryKey: ["user-subscription"] });
+    void queryClient.refetchQueries({ queryKey: ["user-subscription"] });
+  }, [sessionId, session?.user?.id, queryClient]);
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
@@ -34,7 +38,7 @@ function SuccessContent() {
         transition={{ delay: 0.2 }}
         className="text-center max-w-lg space-y-6"
       >
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white">Welcome to the Inner Circle</h1>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-primary ">Welcome to the Inner Circle</h1>
         <p className="text-zinc-400 text-lg leading-relaxed">
           Your payment was successful and your account has been upgraded. You now have unlimited access to our entire premium catalog.
         </p>
@@ -47,7 +51,7 @@ function SuccessContent() {
             </Button>
           </Link>
           <Link href="/watchlist" className="w-full sm:w-auto">
-            <Button size="lg" variant="outline" className="w-full rounded-full h-14 px-8 border-white/10 hover:bg-white/5 text-white font-bold gap-2">
+            <Button size="lg" variant="outline" className="w-full rounded-full h-14 px-8 border-primary  hover:bg-primary hover:text-white text-primary  font-bold gap-2">
               <Ticket className="w-5 h-5" />
               View Watchlist
             </Button>

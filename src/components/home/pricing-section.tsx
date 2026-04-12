@@ -8,8 +8,6 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import apiClient from "@/lib/axios";
-import { getStripe } from "@/lib/stripe";
-
 import { useQuery } from "@tanstack/react-query";
 
 interface SubscriptionTier {

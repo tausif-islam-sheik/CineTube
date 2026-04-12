@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Popcorn } from "lucide-react";
 import apiClient from "@/lib/axios";
-import { getStripe } from "@/lib/stripe";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -24,27 +23,48 @@ export default function PricingPage() {
 
     try {
       setLoading(interval);
-      // Backend handles generating the correct Stripe Price ID based on the tier and interval
-      const { data } = await apiClient.post("/api/checkout/session", {
-          tier: "PREMIUM",
-          interval: interval
-      });
 
-      const stripe = await getStripe();
-      if (!stripe) {
-         throw new Error("Stripe could not load");
+      const { data: tiersBody } = await apiClient.get("/api/v1/subscription-tiers", {
+        params: { limit: 100 },
+      });
+      const tiers: { id: string; name: string; price: number; billingCycle: number }[] =
+        Array.isArray(tiersBody?.data) ? tiersBody.data : [];
+
+      // Match home pricing-section: monthly → PREMIUM (or any paid monthly tier); yearly → VIP, else PREMIUM + interval
+      const monthlyTier =
+        tiers.find((t) => t.name === "PREMIUM") ??
+        tiers.find((t) => t.name !== "FREE" && t.price > 0 && t.billingCycle === 1);
+      const yearlyTier =
+        tiers.find((t) => t.name === "VIP") ?? tiers.find((t) => t.name === "PREMIUM");
+
+      const tier = interval === "monthly" ? monthlyTier : yearlyTier;
+      if (!tier) {
+        throw new Error(
+          interval === "monthly"
+            ? "Monthly plan is not available. Please try again later."
+            : "Yearly plan is not available. Please try again later.",
+        );
       }
 
-      const { error } = await stripe.redirectToCheckout({
-         sessionId: data.sessionId
+      const { data } = await apiClient.post("/api/v1/payments/checkout-session", {
+        tierId: tier.id,
+        interval,
       });
 
-      if (error) {
-         throw error;
+      if (data?.success && data?.data?.url) {
+        window.location.href = data.data.url;
+      } else {
+        throw new Error("Failed to get checkout URL");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error("Failed to intiate checkout. Please try again.");
+      const message =
+        error && typeof error === "object" && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      const fallback =
+        error instanceof Error ? error.message : "Failed to initiate checkout. Please try again.";
+      toast.error(message || fallback);
     } finally {
       setLoading(null);
     }
