@@ -74,8 +74,8 @@ export function ReviewList({ movieId }: { movieId: string }) {
   const { data: reviews, isLoading, error } = useQuery<Review[]>({
     queryKey: ["reviews", movieId],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/reviews?movieId=${movieId}`);
-      return data;
+      const { data } = await apiClient.get(`/api/v1/reviews?movieId=${movieId}`);
+      return data.data;
     },
   });
 

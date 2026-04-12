@@ -45,7 +45,7 @@ export function CreateReview({ movieId }: { movieId: string }) {
 
   const createReviewMutation = useMutation({
     mutationFn: async (values: z.infer<typeof reviewSchema>) => {
-      const { data } = await apiClient.post("/api/reviews", {
+      const { data } = await apiClient.post("/api/v1/reviews", {
         ...values,
         movieId,
       });

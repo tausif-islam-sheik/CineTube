@@ -21,8 +21,8 @@ export default function MovieDetailsPage() {
   const { data: movie, isLoading, error } = useQuery<Movie>({
     queryKey: ["movie", id],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/movies/${id}`);
-      return data;
+      const { data } = await apiClient.get(`/api/v1/movies/${id}`);
+      return data.data;
     },
   });
 
@@ -30,8 +30,8 @@ export default function MovieDetailsPage() {
       queryKey: ["watchlist", session?.user?.id],
       queryFn: async () => {
           if (!session?.user?.id) return [];
-          const { data } = await apiClient.get(`/api/watchlists`);
-          return data;
+          const { data } = await apiClient.get(`/api/v1/watchlist/user/watchlist`);
+          return data.data;
       },
       enabled: !!session?.user?.id
   });
@@ -41,9 +41,12 @@ export default function MovieDetailsPage() {
   const toggleWatchlistMutation = useMutation({
     mutationFn: async () => {
       if (isWatchlisted) {
-          await apiClient.delete(`/api/watchlists/${id}`);
+          const watchlistEntry = watchlists?.find((w: any) => w.movieId === id);
+          if (watchlistEntry) {
+            await apiClient.delete(`/api/v1/watchlist/${watchlistEntry.id}`);
+          }
       } else {
-          await apiClient.post(`/api/watchlists`, { movieId: id });
+          await apiClient.post(`/api/v1/watchlist`, { movieId: id });
       }
     },
     onMutate: async () => {
