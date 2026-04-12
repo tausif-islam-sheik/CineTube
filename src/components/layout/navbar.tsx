@@ -145,6 +145,18 @@ export function Navbar() {
             )}
           </div>
 
+          {/* Watchlist Quick Link */}
+          {session && !searchOpen && (
+            <Link href="/watchlist">
+                <button
+                    className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted relative group"
+                    aria-label="Watchlist"
+                >
+                    <Heart className="w-5 h-5 group-hover:fill-red-500/10 group-hover:text-red-500 transition-all" />
+                </button>
+            </Link>
+          )}
+
           {/* Admin link */}
           {isAdmin && !searchOpen && (
             <Link href="/admin">
@@ -260,6 +272,13 @@ export function Navbar() {
               Admin Dashboard
             </Link>
           )}
+
+          {session && (
+             <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                Your Watchlist
+             </Link>
+          )}
+
           {!session && (
             <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
               Login

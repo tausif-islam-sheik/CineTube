@@ -236,7 +236,7 @@ function HeroSpotlight({ movie }: { movie: Movie }) {
                 <Button 
                   size="xl" 
                   className={cn(
-                    "rounded-full px-10 md:px-16 h-16 md:h-20 text-lg md:text-2xl font-black gap-4",
+                    "rounded-full px-10 md:px-16 h-16 md:h-20 text-lg md:text-2xl cursor-pointer font-black gap-4",
                     "bg-white text-black hover:bg-white/90 hover:scale-105 active:scale-95 transition-all text-shadow-none",
                     "shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
                   )}
@@ -245,7 +245,7 @@ function HeroSpotlight({ movie }: { movie: Movie }) {
                   WATCH NOW
                 </Button>
               </Link>
-              <WatchlistButton movie={movie} className="h-16 md:h-20" />
+              <WatchlistButton movie={movie} className="h-16 md:h-20 cursor-pointer" />
             </div>
           </div>
         </div>
