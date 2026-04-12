@@ -10,38 +10,67 @@ import { toast } from "sonner";
 import apiClient from "@/lib/axios";
 import { getStripe } from "@/lib/stripe";
 
+import { useQuery } from "@tanstack/react-query";
+
+interface SubscriptionTier {
+  id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  price: number;
+  billingCycle: number;
+  currency: string;
+  features: string[] | any;
+}
+
 export function PricingSection() {
-  const [loading, setLoading] = useState<"monthly" | "yearly" | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState<string | null>(null);
   const { data: session } = useSession();
   const router = useRouter();
 
-  const handleCheckout = async (interval: "monthly" | "yearly") => {
+  const { data: tiersResp, isLoading } = useQuery<{ data: SubscriptionTier[] }>({
+    queryKey: ["subscription-tiers"],
+    queryFn: async () => {
+      const { data } = await apiClient.get("/api/v1/subscription-tiers");
+      return data;
+    },
+  });
+
+  const tiers = tiersResp?.data || [];
+  
+  // Find tiers by name or cycle
+  const monthlyTier = tiers.find(t => t.name === "PREMIUM" || t.billingCycle === 1);
+  const yearlyTier = tiers.find(t => t.name === "VIP" || t.billingCycle === 12);
+  const freeTier = tiers.find(t => t.name === "FREE" || t.price === 0);
+
+  const handleCheckout = async (tierId: string | undefined) => {
     if (!session) {
       toast.error("Please sign in to subscribe.");
       router.push("/login");
       return;
     }
 
+    if (!tierId) {
+      toast.error("Invalid subscription plan selection.");
+      return;
+    }
+
     try {
-      setLoading(interval);
-      const { data } = await apiClient.post("/api/checkout/session", {
-        tier: "PREMIUM",
-        interval: interval
+      setIsRedirecting(tierId);
+      const { data } = await apiClient.post("/api/v1/payments/checkout-session", {
+        tierId
       });
 
-      const stripe = await getStripe();
-      if (!stripe) throw new Error("Stripe could not load");
-
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId
-      });
-
-      if (error) throw error;
+      if (data?.success && data?.data?.url) {
+        window.location.href = data.data.url;
+      } else {
+        throw new Error("Failed to get checkout URL");
+      }
     } catch (error: any) {
       console.error(error);
-      toast.error("Failed to initiate checkout.");
+      toast.error(error.response?.data?.message || "Failed to initiate checkout.");
     } finally {
-      setLoading(null);
+      setIsRedirecting(null);
     }
   };
 
@@ -62,13 +91,13 @@ export function PricingSection() {
         {/* Free Plan */}
         <Card className="flex flex-col border-border bg-card/50 backdrop-blur-sm transition-all hover:border-primary/30">
           <CardHeader>
-            <CardTitle className="text-xl">Free</CardTitle>
-            <CardDescription>Perfect to get started</CardDescription>
-            <div className="mt-4 font-black text-4xl">$0<span className="text-lg text-muted-foreground font-normal">/mo</span></div>
+            <CardTitle className="text-xl">{freeTier?.displayName || "Free"}</CardTitle>
+            <CardDescription>{freeTier?.description || "Perfect to get started"}</CardDescription>
+            <div className="mt-4 font-black text-4xl">${freeTier?.price || 0}<span className="text-lg text-muted-foreground font-normal">/mo</span></div>
           </CardHeader>
           <CardContent className="flex-1">
             <ul className="space-y-4">
-              {["720p HD streaming", "Access to free titles", "Ad-supported", "1 device support"].map((f) => (
+              {(freeTier?.features || ["720p HD streaming", "Access to free titles", "Ad-supported", "1 device support"]).map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground/80">
                   <Check className="w-4 h-4 text-primary" /> {f}
                 </li>
@@ -85,13 +114,13 @@ export function PricingSection() {
         {/* Monthly Plan */}
         <Card className="flex flex-col border-primary/50 bg-gradient-to-b from-primary/5 to-transparent relative shadow-xl shadow-primary/5">
           <CardHeader>
-            <CardTitle className="text-xl text-primary">Monthly</CardTitle>
-            <CardDescription>Most flexible option</CardDescription>
-            <div className="mt-4 font-black text-4xl">$9.99<span className="text-lg text-muted-foreground font-normal">/mo</span></div>
+            <CardTitle className="text-xl text-primary">{monthlyTier?.displayName || "Monthly"}</CardTitle>
+            <CardDescription>{monthlyTier?.description || "Most flexible option"}</CardDescription>
+            <div className="mt-4 font-black text-4xl">${monthlyTier?.price || 9.99}<span className="text-lg text-muted-foreground font-normal">/mo</span></div>
           </CardHeader>
           <CardContent className="flex-1">
             <ul className="space-y-4">
-              {["4K Ultra HD", "Zero Ads", "Download movies", "3 devices concurrent"].map((f) => (
+              {(monthlyTier?.features || ["4K Ultra HD", "Zero Ads", "Download movies", "3 devices concurrent"]).map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground">
                   <Check className="w-4 h-4 text-primary" /> {f}
                 </li>
@@ -102,10 +131,10 @@ export function PricingSection() {
             <Button 
               className="w-full rounded-xl shadow-lg shadow-primary/20" 
               size="lg" 
-              disabled={loading !== null}
-              onClick={() => handleCheckout("monthly")}
+              disabled={isRedirecting !== null}
+              onClick={() => handleCheckout(monthlyTier?.id)}
             >
-              {loading === "monthly" ? "Processing..." : "Select Monthly"}
+              {isRedirecting === monthlyTier?.id ? "Redirecting..." : "Select Monthly"}
             </Button>
           </CardFooter>
         </Card>
@@ -116,13 +145,13 @@ export function PricingSection() {
             Best Value
           </div>
           <CardHeader>
-            <CardTitle className="text-xl">Yearly</CardTitle>
-            <CardDescription>Save big on full year</CardDescription>
-            <div className="mt-4 font-black text-4xl">$79.99<span className="text-lg text-muted-foreground font-normal">/yr</span></div>
+            <CardTitle className="text-xl">{yearlyTier?.displayName || "Yearly"}</CardTitle>
+            <CardDescription>{yearlyTier?.description || "Save big on full year"}</CardDescription>
+            <div className="mt-4 font-black text-4xl">${yearlyTier?.price || 79.99}<span className="text-lg text-muted-foreground font-normal">/yr</span></div>
           </CardHeader>
           <CardContent className="flex-1">
             <ul className="space-y-4">
-              {["All Monthly features", "Save 33% annually", "Exclusive Early Access", "Priority Support"].map((f) => (
+              {(yearlyTier?.features || ["All Monthly features", "Save 33% annually", "Exclusive Early Access", "Priority Support"]).map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground/80">
                   <Check className="w-4 h-4 text-primary" /> {f}
                 </li>
@@ -134,10 +163,10 @@ export function PricingSection() {
               variant="outline" 
               className="w-full rounded-xl border-primary/30 hover:bg-primary/5" 
               size="lg"
-              disabled={loading !== null}
-              onClick={() => handleCheckout("yearly")}
+              disabled={isRedirecting !== null}
+              onClick={() => handleCheckout(yearlyTier?.id)}
             >
-              {loading === "yearly" ? "Processing..." : "Select Yearly"}
+              {isRedirecting === yearlyTier?.id ? "Redirecting..." : "Select Yearly"}
             </Button>
           </CardFooter>
         </Card>

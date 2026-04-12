@@ -2,6 +2,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import apiClient from "@/lib/axios";
 import { Movie } from "@/types";
 import { useParams } from "next/navigation";
@@ -11,12 +12,24 @@ import { PlayCircle, Star, Heart, Clock, Calendar } from "lucide-react";
 import { CreateReview } from "@/components/reviews/create-review";
 import { ReviewList } from "@/components/reviews/review-list";
 import { useSession } from "@/lib/auth-client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner"; 
 
 export default function MovieDetailsPage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+
+  // Helper to extract YouTube ID and return embed URL
+  const getYouTubeEmbedUrl = (url?: string | null) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) 
+      ? `https://www.youtube.com/embed/${match[2]}?autoplay=1`
+      : null;
+  };
 
   const { data: movie, isLoading, error } = useQuery<Movie>({
     queryKey: ["movie", id],
@@ -150,7 +163,12 @@ export default function MovieDetailsPage() {
                </div>
 
                <div className="flex flex-wrap gap-4 pt-4">
-                  <Button size="lg" className="rounded-full shadow-lg gap-2 px-8">
+                  <Button 
+                    size="lg" 
+                    className="rounded-full shadow-lg gap-2 px-8"
+                    onClick={() => setIsTrailerOpen(true)}
+                    disabled={!movie.trailerUrl && !movie.youtubeLink}
+                  >
                      <PlayCircle className="w-5 h-5" />
                      Watch Trailer
                   </Button>
@@ -220,6 +238,25 @@ export default function MovieDetailsPage() {
            </div>
         </div>
       </div>
+
+      <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
+        <DialogContent className="sm:max-w-4xl p-0 bg-black border-zinc-800 overflow-hidden aspect-video">
+          <DialogHeader className="sr-only">
+             <DialogTitle>{movie.title} - Trailer</DialogTitle>
+          </DialogHeader>
+          <div className="w-full h-full">
+            {isTrailerOpen && (
+              <iframe
+                src={getYouTubeEmbedUrl(movie.trailerUrl || movie.youtubeLink) || ""}
+                title={`${movie.title} Trailer`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
