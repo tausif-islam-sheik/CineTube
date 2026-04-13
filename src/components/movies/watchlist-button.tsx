@@ -57,7 +57,7 @@ export function WatchlistButton({ movie, className }: WatchlistButtonProps) {
     <Button
       variant="outline"
       className={cn(
-        "h-11 w-full rounded-full px-6 text-base font-bold gap-2.5 sm:w-auto sm:px-8 md:h-14 md:px-10 md:text-xl md:gap-3 transition-all active:scale-95 group",
+        "h-11 w-full rounded-lg px-6 text-base font-bold gap-2.5 sm:w-auto md:text-xl md:gap-3 transition-all active:scale-95 group",
         "bg-white/5 backdrop-blur-xl border-white/10 text-white hover:bg-white/10 hover:border-white/20 hover:scale-105",
         isWatchlisted && "bg-white/10 border-white/30",
         className
@@ -66,11 +66,11 @@ export function WatchlistButton({ movie, className }: WatchlistButtonProps) {
       disabled={toggleMutation.isPending}
     >
       <Heart className={cn(
-        "w-7 h-7 transition-all duration-500",
+        "w-10 h-10 transition-all duration-500",
         isWatchlisted ? "fill-red-500 text-red-500 scale-110" : "group-hover:text-red-400 group-hover:scale-110"
       )} />
       <span className="tracking-tight">
-        {isWatchlisted ? "In Watchlist" : "Add to Watchlist"}
+        {isWatchlisted ? "" : ""}
       </span>
     </Button>
   );

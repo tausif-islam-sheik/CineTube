@@ -1,28 +1,28 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/axios";
 import { Movie } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Play,
+  Info,
   Star,
   ChevronRight,
   Flame,
   Sparkles,
-  Clock,
   Shield,
   Zap,
   MonitorPlay,
-  Users,
   TrendingUp,
   Award,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { PricingSection } from "@/components/home/pricing-section";
-import { WatchlistButton } from "@/components/movies/watchlist-button";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 /* ─────────────────────────────────────────────
    Animated gradient background component
@@ -150,7 +150,51 @@ function MovieRow({
 /* ─────────────────────────────────────────────
    Hero Spotlight
  ───────────────────────────────────────────── */
-function HeroSpotlight({ movie }: { movie: Movie }) {
+function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovies: Movie[] }) {
+  type WatchlistEntry = { id: string; movieId: string };
+
+  const { data: session } = useSession();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: watchlists } = useQuery<WatchlistEntry[]>({
+    queryKey: ["watchlist", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      const { data } = await apiClient.get("/api/v1/watchlist/user/watchlist");
+      return data.data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const isWatchlisted = Array.isArray(watchlists) && watchlists.some((w) => w.movieId === movie.id);
+
+  const toggleWatchlistMutation = useMutation({
+    mutationFn: async () => {
+      if (!session?.user?.id) throw new Error("LOGIN_REQUIRED");
+      if (isWatchlisted) {
+        const entry = watchlists?.find((w) => w.movieId === movie.id);
+        if (entry) await apiClient.delete(`/api/v1/watchlist/${entry.id}`);
+      } else {
+        await apiClient.post("/api/v1/watchlist", { movieId: movie.id });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watchlist", session?.user?.id] });
+      toast.success(isWatchlisted ? "Removed from watchlist" : "Added to watchlist");
+    },
+    onError: (error: unknown) => {
+      if ((error as Error)?.message === "LOGIN_REQUIRED") {
+        toast.error("Please login to use watchlist");
+        router.push("/login");
+        return;
+      }
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to update watchlist";
+      toast.error(message);
+    },
+  });
+
   return (
     <div className="relative w-full h-[85vh] md:h-[90vh] min-h-[600px] overflow-hidden bg-black">
       {/* Cinematic Backdrop */}
@@ -172,80 +216,78 @@ function HeroSpotlight({ movie }: { movie: Movie }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
       {/* Content Container */}
-      <div className="absolute inset-0 z-10 flex items-center">
-        <div className="container mx-auto px-4 md:px-12 lg:px-20">
-          <div className="max-w-4xl flex flex-col items-start gap-y-6 md:gap-y-10 animate-in slide-in-from-left-12 fade-in duration-1000 ease-out">
-            
-            {/* Elegant Badge */}
-            <div className="flex items-center gap-3 md:gap-4 group">
-              <div className="h-[2px] w-8 md:w-16 bg-primary/60 transition-all group-hover:w-24 group-hover:bg-primary duration-700" />
-              <span className="text-[10px] md:text-[12px] font-black tracking-[0.5em] text-primary/80 group-hover:text-primary transition-colors uppercase">
+      <div className="absolute inset-0 z-10">
+        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-8 md:px-12 lg:px-20 md:pb-10">
+          <div className="flex items-end justify-between gap-6">
+            <div className="max-w-2xl space-y-8 animate-in slide-in-from-left-10 fade-in duration-700">
+              <p className="text-[14px] font-semibold tracking-[0.22em] text-white/85 uppercase">
                 CineTube Spotlight
-              </span>
-            </div>
+              </p>
+              <h1 className="text-6xl md:text-8xl font-black tracking-tight text-white leading-[0.95]">
+                {movie.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 text-xs
+              md:text-lg text-white/85">
+                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.genre?.[0] || "Drama"}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.releaseYear}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.duration ? `${movie.duration}m` : "N/A"}</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  {movie.averageRating?.toFixed(1) ?? "N/A"}
+                </span>
+              </div>
+              <p className="max-w-xl text-md md:text-lg leading-relaxed text-white/75 line-clamp-2">
+                {movie.description}
+              </p>
 
-            {/* Fluid Responsive Title */}
-            <h1 className="text-[clamp(3.5rem,10vw,8rem)] font-black tracking-tighter text-white leading-[0.85] text-shadow-premium">
-              {movie.title}
-            </h1>
-
-            {/* Premium Metadata Bar */}
-            <div className="flex flex-wrap items-center gap-3 md:gap-4">
-               {/* Rating Panel */}
-               <div className="glass-panel flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-2xl md:rounded-3xl shadow-2xl">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 animate-pulse" />
-                  <span className="font-black text-white text-lg md:text-2xl">
-                    {movie.averageRating?.toFixed(1) ?? "N/A"}
-                  </span>
-               </div>
-               
-               {/* Metadata List */}
-               <div className="glass-panel flex items-center gap-4 md:gap-8 px-6 md:px-10 py-2 md:py-3 rounded-2xl md:rounded-3xl">
-                  <div className="flex gap-3 mb-0.5">
-                    {movie.genre.slice(0, 2).map((g) => (
-                      <span key={g} className="text-white/90 font-bold tracking-widest uppercase text-[9px] md:text-[11px]">
-                        {g}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/40 hidden sm:block" />
-                  <span className="text-white/80 font-black text-xs md:text-sm hidden sm:block">{movie.releaseYear}</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/40 hidden sm:block" />
-                  <div className="items-center gap-2 text-white/80 hidden sm:flex">
-                    <Clock className="w-4 h-4" />
-                    <span className="font-black text-xs md:text-sm tracking-tighter uppercase">{movie.duration} min</span>
-                  </div>
-               </div>
-            </div>
-
-            {/* Mobile-only collapsed Metadata */}
-            <div className="flex sm:hidden items-center gap-4 text-white/60 font-bold text-xs px-2">
-                 <span>{movie.releaseYear}</span>
-                 <div className="w-1 h-1 rounded-full bg-white/20" />
-                 <span>{movie.duration} MIN</span>
-            </div>
-
-            {/* Description */}
-            <p className="text-white/60 text-lg md:text-2xl leading-relaxed line-clamp-3 max-w-3xl text-balance font-medium tracking-tight mt-2">
-              {movie.description}
-            </p>
-
-            {/* Action Group */}
-            <div className="flex w-full flex-col items-stretch gap-3 pt-6 sm:w-auto sm:flex-row sm:items-center md:gap-6">
-              <Button
-                asChild
-                className={cn(
-                  "h-11 w-full rounded-full px-6 text-base font-black gap-2.5 sm:w-auto sm:px-8 md:h-14 md:px-10 md:text-xl md:gap-3",
-                  "bg-white text-black hover:bg-white/90 hover:scale-[1.02] active:scale-95 transition-all text-shadow-none",
-                  "shadow-[0_16px_40px_rgba(255,255,255,0.2)]"
-                )}
-              >
-                <Link href={`/movie/${movie.id}`}>
-                  <Play className="h-4 w-4 fill-current md:h-5 md:w-5" />
-                  WATCH NOW
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button asChild className="h-14 rounded-xl bg-primary px-8 font-bold uppercase tracking-wide">
+                  <Link href={`/movie/${movie.id}`}>
+                    <Play className="mr-1 h-4 w-4 fill-current" />
+                    Play
+                  </Link>
+                </Button>
+                <button
+                  onClick={() => toggleWatchlistMutation.mutate()}
+                  disabled={toggleWatchlistMutation.isPending}
+                  aria-label="Toggle watchlist"
+                  className={cn(
+                    "inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur transition-colors hover:bg-white/30",
+                    isWatchlisted && "bg-primary/80 hover:bg-primary"
+                  )}
+                >
+                  <span className="text-3xl leading-none">+</span>
+                </button>
+                <Link
+                  href={`/movie/${movie.id}`}
+                  className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-sm text-white backdrop-blur hover:bg-white/30 transition-colors"
+                >
+                  <Info className="h-4 w-4" />
                 </Link>
-              </Button>
-              <WatchlistButton movie={movie} className="w-full sm:w-auto" />
+              </div>
+            </div>
+
+            <div className="hidden md:flex flex-col items-end gap-3">
+              <div className="flex items-center gap-2 rounded-xl bg-black/35 p-2 backdrop-blur">
+                {spotlightMovies.slice(0, 6).map((spot) => (
+                  <Link
+                    key={spot.id}
+                    href={`/movie/${spot.id}`}
+                    className={cn(
+                      "relative h-12 w-20 overflow-hidden rounded-md border border-transparent transition-all",
+                      spot.id === movie.id && "border-white shadow-[0_0_0_1px_rgba(255,255,255,0.7)]"
+                    )}
+                  >
+                    {spot.posterUrl ? (
+                      <img src={spot.posterUrl} alt={spot.title} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-zinc-800 text-[10px] text-zinc-300">
+                        {spot.title}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -295,7 +337,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground pb-20">
       {/* ── HERO ── */}
-      {heroMovie && <HeroSpotlight movie={heroMovie} />}
+      {heroMovie && (
+        <HeroSpotlight
+          movie={heroMovie}
+          spotlightMovies={[heroMovie, ...topRated, ...newlyAdded]}
+        />
+      )}
 
 
 
@@ -331,25 +378,41 @@ export default function HomePage() {
           />
         )}
 
-        {/* PRICING */}
-        <PricingSection />
-
-        {/* FEATURES (Simplified for Home) */}
-        <section className="container mx-auto px-4 md:px-8 py-10">
-          <div className="grid md:grid-cols-3 gap-10">
-            {[
-              { icon: <MonitorPlay className="w-8 h-8 text-primary" />, title: "Watch Anywhere", desc: "Available on Smart TVs, Playstation, Xbox, Apple TV, PC, and mobile." },
-              { icon: <Users className="w-8 h-8 text-indigo-400" />, title: "Personal Profiles", desc: "Create up to 5 profiles for family members with their own watchlists." },
-              { icon: <Zap className="w-8 h-8 text-emerald-400" />, title: "Instant Streaming", desc: "Adaptive bitrate ensures the best quality even on slower connections." },
-            ].map((f) => (
-              <div key={f.title} className="space-y-4 p-8 rounded-2xl bg-card border border-border group hover:border-primary/20 transition-colors">
-                <div className="p-3 bg-primary/10 w-fit rounded-xl group-hover:scale-110 transition-transform">{f.icon}</div>
-                <h3 className="text-xl font-bold">{f.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{f.desc}</p>
+        {/* WHY CINETUBE */}
+        <section className="container mx-auto px-4 md:px-8">
+          <div className="rounded-[2rem] border border-border bg-card/40 p-6 md:p-10">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Why CineTube</p>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight">A complete hub for movie lovers</h2>
+                <p className="text-muted-foreground max-w-2xl">
+                  Discover trending titles, follow trusted reviews, and keep your watchlist in sync across devices.
+                </p>
               </div>
-            ))}
+              <Link href="/discover" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">
+                Explore catalog →
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { value: "25K+", label: "Titles Indexed", icon: <MonitorPlay className="w-4 h-4 text-primary" /> },
+                { value: "500K+", label: "Community Ratings", icon: <Star className="w-4 h-4 text-yellow-500 fill-yellow-500/20" /> },
+                { value: "99.9%", label: "Streaming Uptime", icon: <Shield className="w-4 h-4 text-emerald-400" /> },
+                { value: "24/7", label: "Trend Tracking", icon: <TrendingUp className="w-4 h-4 text-indigo-400" /> },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-border bg-background/60 p-4">
+                  <div className="mb-3 inline-flex rounded-md bg-muted p-2">{item.icon}</div>
+                  <p className="text-2xl font-black tracking-tight">{item.value}</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">{item.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
+
+        {/* PRICING */}
+        <PricingSection />
       </div>
 
       {/* ── CTA BANNER ── */}
