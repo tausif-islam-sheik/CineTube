@@ -95,8 +95,15 @@ export interface Review {
     rating: number;
     title: string;
     comment: string;
+    content?: string;
+    tags?: string[];
     status: ReviewStatus;
     containsSpoiler: boolean;
+    spoiler?: boolean;
+    likesCount?: number;
+    _count?: {
+        likes?: number;
+    };
     createdAt: string | Date;
     updatedAt: string | Date;
     userId: string;

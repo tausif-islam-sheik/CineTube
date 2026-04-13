@@ -26,6 +26,7 @@ const reviewSchema = z.object({
   title: z.string().min(2, "Title is too short").max(100),
   comment: z.string().min(10, "Review must be at least 10 characters").max(2000),
   containsSpoiler: z.boolean().default(false),
+  tagsInput: z.string().max(200).optional(),
 });
 
 export function CreateReview({ movieId }: { movieId: string }) {
@@ -40,13 +41,24 @@ export function CreateReview({ movieId }: { movieId: string }) {
       title: "",
       comment: "",
       containsSpoiler: false,
+      tagsInput: "",
     },
   });
 
   const createReviewMutation = useMutation({
     mutationFn: async (values: z.infer<typeof reviewSchema>) => {
+      const tags =
+        values.tagsInput
+          ?.split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .filter(Boolean)
+          .slice(0, 8) ?? [];
       const { data } = await apiClient.post("/api/v1/reviews", {
-        ...values,
+        rating: values.rating,
+        title: values.title,
+        comment: values.comment,
+        containsSpoiler: values.containsSpoiler,
+        tags,
         movieId,
       });
       return data;
@@ -63,6 +75,11 @@ export function CreateReview({ movieId }: { movieId: string }) {
              const tempReview = {
                 id: Math.random().toString(),
                 ...newReview,
+                tags: newReview.tagsInput
+                  ?.split(",")
+                  .map((tag) => tag.trim().toLowerCase())
+                  .filter(Boolean)
+                  .slice(0, 8),
                 createdAt: new Date().toISOString(),
                 user: session?.user || { name: "You" }
              };
@@ -154,6 +171,26 @@ export function CreateReview({ movieId }: { movieId: string }) {
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tagsInput"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    placeholder='Tags (comma separated): classic, family-friendly, underrated'
+                    {...field}
+                    className="bg-background"
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Optional. Add up to 8 tags separated by commas.
+                </p>
                 <FormMessage />
               </FormItem>
             )}
