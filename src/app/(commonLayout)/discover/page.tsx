@@ -56,7 +56,7 @@ export default function DiscoverPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 animate-in fade-in duration-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 animate-in fade-in duration-500">
               {data.pages.map((page, i) => (
                 page.data.map((movie) => (
                   <Link href={`/movie/${movie.id}`} key={movie.id}>

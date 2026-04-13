@@ -244,7 +244,7 @@ export default function MovieDetailsPage() {
                      <Button 
                        size="xl" 
                        variant="outline"
-                       className="rounded-full shadow-xl gap-2 px-8 h-16 border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all font-bold"
+                       className="rounded-full shadow-xl gap-2 px-8 h-16 border-white/10 bg-white backdrop-blur-md hover:bg-white/10 transition-all font-bold"
                        onClick={() => setIsTrailerOpen(true)}
                        disabled={!movie.trailerUrl && !movie.youtubeLink}
                      >
