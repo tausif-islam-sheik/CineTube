@@ -76,7 +76,7 @@ export function WatchlistCard({ watchlistId, movie }: WatchlistCardProps) {
 
       <div className="flex gap-3">
         <div className="flex-1 space-y-1">
-            <h3 className="font-bold text-sm md:text-base text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+            <h3 className="font-bold text-sm md:text-base text-primary line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                 {movie.title}
             </h3>
             <div className="flex items-center gap-2 text-zinc-500 text-xs font-medium">
