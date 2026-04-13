@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Search, Popcorn, User, LogOut, Heart,
   Shield, Menu, X, Gift,
@@ -24,22 +24,25 @@ import { Input } from "@/components/ui/input";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/discover", label: "Movies" },
-  { href: "/discover?type=series", label: "Series" },
-  { href: "/discover?pricing=FREE", label: "Free" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isHome = pathname === "/";
+  const isOverlay = isHome && !isScrolled;
 
   // Focus input when search opens
   useEffect(() => {
@@ -51,6 +54,16 @@ export function Navbar() {
   // Clear search when leaving discover
   useEffect(() => {
     if (pathname !== "/discover") setSearchQuery("");
+  }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      // Keep hero navbar transparent longer at top section.
+      setIsScrolled(window.scrollY > 80);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
   // Debounce search — only fires while typing, never on initial render
@@ -74,13 +87,21 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-xl border-b border-border">
-      <div className="max-w-screen-xl mx-auto flex h-14 items-center px-4 md:px-8">
+    <nav
+      className={cn(
+        "top-0 z-50 w-full transition-colors",
+        isOverlay ? "absolute inset-x-0" : "sticky",
+        isOverlay
+          ? "bg-transparent border-b border-transparent"
+          : "border-b border-border bg-background/90 backdrop-blur-xl"
+      )}
+    >
+      <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8">
 
         {/* ── Logo ── */}
-        <Link href="/" className="flex items-center gap-1.5 select-none shrink-0 mr-10">
+        <Link href="/" className="flex items-center gap-1.5 select-none shrink-0 mr-8">
           <Popcorn className="h-5 w-5 text-primary" />
-          <span className="font-black text-foreground tracking-tight text-lg">
+          <span className={cn("font-black tracking-tight text-lg", isOverlay ? "text-white" : "text-foreground")}>
             CINE<span className="text-primary">TUBE</span>
             <span className="text-primary text-xl leading-none">+</span>
           </span>
@@ -93,10 +114,10 @@ export function Navbar() {
               key={href}
               href={href}
               className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded transition-colors",
+                "px-3 py-1.5 text-sm font-semibold rounded-md transition-colors",
                 isActive(href)
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? isOverlay ? "text-white" : "text-foreground"
+                  : isOverlay ? "text-white/95 hover:text-white" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {label}
@@ -125,11 +146,19 @@ export function Navbar() {
                       setSearchOpen(false);
                     }
                   }}
-                  className="h-8 w-52 bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50 text-sm"
+                  className={cn(
+                    "h-8 w-52 focus-visible:ring-primary/50 text-sm",
+                    isOverlay
+                      ? "bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      : "bg-background border-border text-foreground placeholder:text-muted-foreground"
+                  )}
                 />
                 <button
                   onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className={cn(
+                    "transition-colors",
+                    isOverlay ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -137,25 +166,18 @@ export function Navbar() {
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+                className={cn(
+                  "p-2 transition-colors rounded-lg",
+                  isOverlay
+                    ? "text-white/75 hover:text-white hover:bg-white/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </button>
             )}
           </div>
-
-          {/* Watchlist Quick Link */}
-          {session && !searchOpen && (
-            <Link href="/watchlist">
-                <button
-                    className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted relative group"
-                    aria-label="Watchlist"
-                >
-                    <Heart className="w-5 h-5 group-hover:fill-primary/10 group-hover:text-primary transition-all" />
-                </button>
-            </Link>
-          )}
 
           {/* Admin link */}
           {isAdmin && !searchOpen && (
@@ -180,8 +202,8 @@ export function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 border border-border rounded-full pl-3 pr-1 py-1 hover:border-muted-foreground transition-colors group">
-                      <User className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                      <span className="text-foreground/80 text-sm group-hover:text-foreground transition-colors max-w-[90px] truncate hidden sm:block">
+                      <User className={cn("w-3.5 h-3.5 transition-colors", isOverlay ? "text-white/80 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                      <span className={cn("text-sm transition-colors max-w-[90px] truncate hidden sm:block", isOverlay ? "text-white/80 group-hover:text-white" : "text-foreground/80 group-hover:text-foreground")}>
                         {session.user.name?.split(" ")[0]}
                       </span>
                       <Avatar className="h-6 w-6">
@@ -231,7 +253,12 @@ export function Navbar() {
                 </DropdownMenu>
               ) : (
                 <Link href="/login">
-                  <button className="flex items-center gap-2 border border-border rounded-full px-4 py-1.5 text-sm text-foreground/80 hover:text-foreground hover:border-muted-foreground transition-colors font-medium">
+                  <button className={cn(
+                    "flex items-center gap-2 border rounded-full px-4 py-1.5 text-sm transition-colors font-medium",
+                    isOverlay
+                      ? "border-white/20 text-white/80 hover:text-white hover:border-white/40"
+                      : "border-border text-foreground/80 hover:text-foreground hover:border-muted-foreground"
+                  )}>
                     <User className="w-3.5 h-3.5" />
                     Login
                   </button>
@@ -242,7 +269,10 @@ export function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className={cn(
+              "md:hidden p-2 transition-colors",
+              isOverlay ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"
+            )}
             onClick={() => setMobileOpen((v) => !v)}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -252,7 +282,7 @@ export function Navbar() {
 
       {/* ── Mobile Drawer ── */}
       {mobileOpen && (
-        <div className="md:hidden bg-background border-t border-border px-4 pb-4 pt-2 space-y-1 animate-in slide-in-from-top-2 fade-in duration-150">
+        <div className="md:hidden bg-background/95 border-t border-border px-4 pb-4 pt-2 space-y-1 animate-in slide-in-from-top-2 fade-in duration-150">
           {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
