@@ -4,10 +4,13 @@ import { Movie } from "@/types";
 
 export interface MovieFilters {
   q?: string;
-  genre?: string;
+  genre?: string[];
   yearMin?: number;
   yearMax?: number;
   ratingMin?: number;
+  sortBy?: "rating" | "releaseYear" | "createdAt" | "title";
+  order?: "asc" | "desc";
+  pricing?: "FREE" | "PREMIUM";
 }
 
 interface MoviePage {
@@ -31,9 +34,15 @@ export function useMovies(filters: MovieFilters) {
       params.append("limit", "12");
 
       if (filters.q) params.append("search", filters.q);
-      if (filters.genre) params.append("genre", filters.genre);
-      if (filters.yearMin) params.append("releaseYear", filters.yearMin.toString());
+      if (filters.genre?.length) {
+        filters.genre.forEach((genre) => params.append("genre", genre));
+      }
+      if (filters.yearMin) params.append("yearMin", filters.yearMin.toString());
+      if (filters.yearMax) params.append("yearMax", filters.yearMax.toString());
       if (filters.ratingMin) params.append("minRating", filters.ratingMin.toString());
+      if (filters.sortBy) params.append("sortBy", filters.sortBy);
+      if (filters.order) params.append("order", filters.order);
+      if (filters.pricing) params.append("pricing", filters.pricing);
 
       const { data } = await apiClient.get(`/api/v1/movies?${params.toString()}`);
       return data;

@@ -16,10 +16,13 @@ export default function DiscoverPage() {
 
   const filters = {
     q: searchParams.get("q") || undefined,
-    genre: searchParams.get("genre") || undefined,
+    genre: searchParams.getAll("genre").length ? searchParams.getAll("genre") : undefined,
     yearMin: searchParams.get("yearMin") ? parseInt(searchParams.get("yearMin") as string) : undefined,
     yearMax: searchParams.get("yearMax") ? parseInt(searchParams.get("yearMax") as string) : undefined,
     ratingMin: searchParams.get("ratingMin") ? parseFloat(searchParams.get("ratingMin") as string) : undefined,
+    sortBy: (searchParams.get("sortBy") as "rating" | "releaseYear" | "createdAt" | "title") || "createdAt",
+    order: (searchParams.get("order") as "asc" | "desc") || "desc",
+    pricing: (searchParams.get("pricing") as "FREE" | "PREMIUM") || undefined,
   };
 
   const {
@@ -56,12 +59,12 @@ export default function DiscoverPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 animate-in fade-in duration-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 md:gap-6 items-stretch animate-in fade-in duration-500">
               {data.pages.map((page, i) => (
                 page.data.map((movie) => (
                   <Link href={`/movie/${movie.id}`} key={movie.id}>
-                    <Card className="overflow-hidden group h-full flex flex-col transition-all hover:ring-2 hover:ring-primary hover:shadow-lg dark:hover:shadow-primary/20">
-                      <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+                    <Card className="overflow-hidden py-0 group h-full flex flex-col rounded-2xl border border-border/80 bg-card/70 transition-all hover:-translate-y-0.5 hover:ring-2 hover:ring-primary/60 hover:shadow-xl hover:shadow-primary/10">
+                      <div className="relative aspect-2/3 overflow-hidden bg-muted">
                         {/* Fallback poster UI if no next/image available natively without domain config */}
                         {movie.posterUrl ? (
                           <img 
@@ -80,23 +83,23 @@ export default function DiscoverPage() {
                           {movie.averageRating?.toFixed(1) || "N/A"}
                         </div>
                       </div>
-                      <CardContent className="p-4 flex-1 flex flex-col">
-                        <h3 className="font-semibold text-sm line-clamp-1 mb-1">{movie.title}</h3>
-                        <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                      <CardContent className="p-4 flex-1 flex flex-col gap-2">
+                        <h3 className="font-semibold text-sm line-clamp-1">{movie.title}</h3>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{movie.releaseYear}</span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {movie.duration ? `${movie.duration}m` : "--"}
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <div className="mt-auto flex flex-wrap gap-1">
                            {movie.genre.slice(0, 2).map((g) => (
-                              <span key={g} className="text-[10px] px-1.5 py-0.5 bg-secondary text-secondary-foreground rounded-sm">
+                              <span key={g} className="text-[10px] px-1.5 py-0.5 bg-secondary text-secondary-foreground rounded">
                                 {g}
                               </span>
                            ))}
                            {movie.genre.length > 2 && (
-                               <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground rounded-sm">
+                               <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground rounded">
                                   +{movie.genre.length - 2}
                                </span>
                            )}
