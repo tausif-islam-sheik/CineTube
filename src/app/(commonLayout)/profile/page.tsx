@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, CalendarDays, CreditCard, Crown, User } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import apiClient from "@/lib/axios";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 type UserSubscription = {
   id: string;
@@ -32,6 +35,16 @@ type UserPayment = {
   description?: string | null;
 };
 
+type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  phone: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+};
+
 const formatDate = (value?: string | null) => {
   if (!value) return "N/A";
   return new Date(value).toLocaleDateString();
@@ -39,7 +52,16 @@ const formatDate = (value?: string | null) => {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: session, isPending } = useSession();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    image: "",
+    phone: "",
+    gender: "",
+    dateOfBirth: "",
+  });
 
   const { data: activeSubscription, isLoading: subscriptionLoading } = useQuery<UserSubscription | null>({
     queryKey: ["profile-active-subscription"],
@@ -59,11 +81,85 @@ export default function ProfilePage() {
     enabled: !!session,
   });
 
+  const { data: profileData, isLoading: profileLoading } = useQuery<UserProfile | null>({
+    queryKey: ["user-profile", session?.user?.id],
+    queryFn: async () => {
+      const { data } = await apiClient.get("/api/v1/user/profile");
+      return data.data;
+    },
+    enabled: !!session,
+  });
+
   useEffect(() => {
     if (!isPending && !session) {
       router.push("/login");
     }
   }, [isPending, session, router]);
+
+  useEffect(() => {
+    if (!session) return;
+    if (profileData) {
+      setProfileForm({
+        name: profileData.name || session.user.name || "",
+        image: profileData.image || session.user.image || "",
+        phone: profileData.phone || "",
+        gender: profileData.gender || "",
+        dateOfBirth: profileData.dateOfBirth
+          ? new Date(profileData.dateOfBirth).toISOString().slice(0, 10)
+          : "",
+      });
+      return;
+    }
+    setProfileForm({
+      name: session.user.name || "",
+      image: session.user.image || "",
+      phone: "",
+      gender: "",
+      dateOfBirth: "",
+    });
+  }, [session, profileData]);
+
+  const handleProfileImageFile = (file: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image size should be less than 2MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setProfileForm((prev) => ({ ...prev, image: result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async () => {
+      await apiClient.patch("/api/v1/user/profile", {
+        name: profileForm.name,
+        image: profileForm.image,
+        phone: profileForm.phone,
+        gender: profileForm.gender,
+        dateOfBirth: profileForm.dateOfBirth,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Profile details saved");
+      queryClient.invalidateQueries({ queryKey: ["user-profile", session?.user?.id] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to save profile");
+    },
+  });
+
+  const handleProfileSave = () => {
+    updateProfileMutation.mutate();
+  };
 
   if (isPending || !session) {
     return (
@@ -82,7 +178,9 @@ export default function ProfilePage() {
               <User className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{session.user.name || "CineTube User"}</h1>
+              <h1 className="text-2xl font-bold">
+                {profileLoading ? "Loading..." : profileForm.name || session.user.name || "CineTube User"}
+              </h1>
               <p className="text-sm text-muted-foreground">{session.user.email}</p>
             </div>
           </div>
@@ -102,6 +200,98 @@ export default function ProfilePage() {
               </div>
               <p className="text-sm text-muted-foreground">Upgrade or manage your plan.</p>
             </Link>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold">Personal Information</h2>
+            <Button size="sm" onClick={handleProfileSave} disabled={updateProfileMutation.isPending}>
+              {updateProfileMutation.isPending ? "Saving..." : "Save Profile"}
+            </Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Profile Picture</Label>
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-border bg-muted">
+                  {profileForm.image ? (
+                    <img src={profileForm.image} alt="Profile preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleProfileImageFile(e.target.files?.[0] || null)}
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Upload Image
+                  </Button>
+                  {profileForm.image && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setProfileForm((prev) => ({ ...prev, image: "" }))}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">PNG/JPG/WEBP up to 2MB.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profileName">Full Name</Label>
+              <Input
+                id="profileName"
+                placeholder="Your name"
+                value={profileForm.name}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profilePhone">Phone Number</Label>
+              <Input
+                id="profilePhone"
+                placeholder="+8801XXXXXXXXX"
+                value={profileForm.phone}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profileGender">Gender</Label>
+              <select
+                id="profileGender"
+                value={profileForm.gender}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, gender: e.target.value }))}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profileDob">Date of Birth</Label>
+              <Input
+                id="profileDob"
+                type="date"
+                value={profileForm.dateOfBirth}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+              />
+            </div>
           </div>
         </div>
 

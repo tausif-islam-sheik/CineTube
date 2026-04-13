@@ -106,7 +106,7 @@ export function PricingSection() {
       <div className="grid gap-6 md:grid-cols-3 max-w-6xl mx-auto items-stretch">
         {/* Free Plan */}
         <Card className="flex h-full flex-col border-border bg-card/60 transition-all hover:border-primary/30">
-          <CardHeader className="min-h-[170px]">
+          <CardHeader>
             <div className="inline-flex w-fit rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Starter
             </div>
@@ -117,7 +117,7 @@ export function PricingSection() {
               <span className="text-base text-muted-foreground font-normal">/mo</span>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-[180px]">
+          <CardContent className="flex-1">
             <ul className="space-y-4">
               {freeFeatures.map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground/80">
@@ -135,7 +135,7 @@ export function PricingSection() {
 
         {/* Monthly Plan */}
         <Card className="relative flex h-full flex-col border-primary/40 bg-linear-to-b from-primary/10 to-transparent shadow-xl shadow-primary/10">
-          <CardHeader className="min-h-[170px]">
+          <CardHeader>
             <div className="mb-1 inline-flex w-fit rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
               Most Popular
             </div>
@@ -146,7 +146,7 @@ export function PricingSection() {
               <span className="text-base text-muted-foreground font-normal">/mo</span>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-[180px]">
+          <CardContent className="flex-1">
             <ul className="space-y-4">
               {monthlyFeatures.map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground">
@@ -169,7 +169,7 @@ export function PricingSection() {
 
         {/* Yearly Plan */}
         <Card className="relative flex h-full flex-col border-border bg-card/60 transition-all hover:border-primary/30">
-          <CardHeader className="min-h-[170px]">
+          <CardHeader>
             <div className="mb-1 inline-flex w-fit rounded-full bg-yellow-500 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-black">
               Best Value
             </div>
@@ -180,7 +180,7 @@ export function PricingSection() {
               <span className="text-base text-muted-foreground font-normal">/yr</span>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-[180px]">
+          <CardContent className="flex-1">
             <ul className="space-y-4">
               {yearlyFeatures.map((f: string) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-foreground/80">

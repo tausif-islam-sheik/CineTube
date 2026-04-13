@@ -196,7 +196,7 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
   });
 
   return (
-    <div className="relative w-full h-[85vh] md:h-[90vh] min-h-[600px] overflow-hidden bg-black">
+    <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Cinematic Backdrop */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         {movie.posterUrl ? (
