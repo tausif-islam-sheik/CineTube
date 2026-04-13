@@ -10,8 +10,10 @@ const PRODUCT_LINKS = [
 
 const COMPANY_LINKS = [
   { href: "/", label: "Home" },
+  { href: "/about", label: "About Us" },
+  { href: "/contact", label: "Contact" },
+  { href: "/faq", label: "FAQ" },
   { href: "/profile", label: "Profile" },
-  { href: "/login", label: "Sign In" },
 ];
 
 const SUPPORT_LINKS = [
@@ -112,13 +114,13 @@ export function Footer() {
         <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
           <p>© {currentYear} CineTube. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link href="/" className="transition-colors hover:text-foreground">
+            <Link href="/faq" className="transition-colors hover:text-foreground">
               Terms of Service
             </Link>
-            <Link href="/" className="transition-colors hover:text-foreground">
+            <Link href="/contact" className="transition-colors hover:text-foreground">
               Privacy Policy
             </Link>
-            <Link href="/" className="transition-colors hover:text-foreground">
+            <Link href="/about" className="transition-colors hover:text-foreground">
               Cookie Policy
             </Link>
           </div>

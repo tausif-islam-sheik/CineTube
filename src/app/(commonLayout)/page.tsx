@@ -172,7 +172,7 @@ function HeroSpotlight({ movie }: { movie: Movie }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
       {/* Content Container */}
-      <div className="absolute inset-0 flex items-center">
+      <div className="absolute inset-0 z-10 flex items-center">
         <div className="container mx-auto px-4 md:px-12 lg:px-20">
           <div className="max-w-4xl flex flex-col items-start gap-y-6 md:gap-y-10 animate-in slide-in-from-left-12 fade-in duration-1000 ease-out">
             
@@ -231,28 +231,25 @@ function HeroSpotlight({ movie }: { movie: Movie }) {
             </p>
 
             {/* Action Group */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 md:gap-8 pt-6 w-full sm:w-auto">
-              <Link href={`/movie/${movie.id}`}>
-                <Button 
-                  size="xl" 
-                  className={cn(
-                    "rounded-full px-10 md:px-16 h-16 md:h-20 text-lg md:text-2xl cursor-pointer font-black gap-4",
-                    "bg-white text-black hover:bg-white/90 hover:scale-105 active:scale-95 transition-all text-shadow-none",
-                    "shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
-                  )}
-                >
-                  <Play className="w-6 h-6 md:w-8 md:h-8 fill-current" />
+            <div className="flex w-full flex-col items-stretch gap-3 pt-6 sm:w-auto sm:flex-row sm:items-center md:gap-6">
+              <Button
+                asChild
+                className={cn(
+                  "h-11 w-full rounded-full px-6 text-base font-black gap-2.5 sm:w-auto sm:px-8 md:h-14 md:px-10 md:text-xl md:gap-3",
+                  "bg-white text-black hover:bg-white/90 hover:scale-[1.02] active:scale-95 transition-all text-shadow-none",
+                  "shadow-[0_16px_40px_rgba(255,255,255,0.2)]"
+                )}
+              >
+                <Link href={`/movie/${movie.id}`}>
+                  <Play className="h-4 w-4 fill-current md:h-5 md:w-5" />
                   WATCH NOW
-                </Button>
-              </Link>
-              <WatchlistButton movie={movie} className="h-16 md:h-20 cursor-pointer" />
+                </Link>
+              </Button>
+              <WatchlistButton movie={movie} className="w-full sm:w-auto" />
             </div>
           </div>
         </div>
       </div>
-
-      {/* Bottom Cinematic Fade */}
-      <div className="absolute bottom-0 inset-x-0 h-40 md:h-64 bg-gradient-to-t from-background via-background/40 to-transparent" />
     </div>
   );
 }

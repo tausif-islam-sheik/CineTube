@@ -56,9 +56,8 @@ export function WatchlistButton({ movie, className }: WatchlistButtonProps) {
   return (
     <Button
       variant="outline"
-      size="xl"
       className={cn(
-        "rounded-full px-10 h-18 text-xl font-bold gap-4 transition-all active:scale-95 group",
+        "h-11 w-full rounded-full px-6 text-base font-bold gap-2.5 sm:w-auto sm:px-8 md:h-14 md:px-10 md:text-xl md:gap-3 transition-all active:scale-95 group",
         "bg-white/5 backdrop-blur-xl border-white/10 text-white hover:bg-white/10 hover:border-white/20 hover:scale-105",
         isWatchlisted && "bg-white/10 border-white/30",
         className
