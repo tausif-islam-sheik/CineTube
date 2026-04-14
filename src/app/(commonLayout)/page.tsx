@@ -241,9 +241,9 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
               </p>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Button asChild className="h-14 rounded-xl bg-primary px-8 font-bold uppercase tracking-wide">
+                <Button asChild className="h-14 rounded-xl bg-primary px-10 font-semibold text-xl uppercase tracking-wide">
                   <Link href={`/movie/${movie.id}`}>
-                    <Play className="mr-1 h-4 w-4 fill-current" />
+                    <Play className="mr-1 h-6 w-6 fill-current" />
                     Play
                   </Link>
                 </Button>

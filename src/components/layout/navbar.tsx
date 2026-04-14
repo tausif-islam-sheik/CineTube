@@ -100,8 +100,8 @@ export function Navbar() {
 
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-1.5 select-none shrink-0 mr-8">
-          <Popcorn className="h-5 w-5 text-primary" />
-          <span className={cn("font-black tracking-tight text-lg", isOverlay ? "text-white" : "text-foreground")}>
+          <Popcorn className="h-6 w-6 text-primary" />
+          <span className={cn("font-black tracking-tight text-xl", isOverlay ? "text-white" : "text-foreground")}>
             CINE<span className="text-primary">TUBE</span>
             <span className="text-primary text-xl leading-none">+</span>
           </span>

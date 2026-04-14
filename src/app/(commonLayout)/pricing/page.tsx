@@ -122,7 +122,7 @@ export default function PricingPage() {
 
         {/* Yearly Plan */}
         <Card className="relative flex flex-col border-primary shadow-lg shadow-primary/20 scale-100 md:scale-105 z-10">
-           <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+           <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest pt-6">
               Best Value
            </div>
            <CardHeader>

@@ -36,10 +36,11 @@ export function Footer() {
       <div className="mx-auto w-full max-w-7xl px-4 py-10 md:px-8">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2">
+            <Link href="/" className="inline-flex items-center gap-1">
               <Popcorn className="h-5 w-5 text-primary" />
-              <span className="text-base font-extrabold tracking-tight text-foreground">
-                CINE<span className="text-primary">TUBE</span>+
+              <span className="text-lg font-extrabold tracking-tight text-foreground">
+                CINE<span className="text-primary">TUBE</span>
+                 <span className="text-primary text-lg leading-none">+</span>
               </span>
             </Link>
             <p className="max-w-xs text-sm leading-6 text-muted-foreground">

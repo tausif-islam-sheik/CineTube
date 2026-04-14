@@ -145,25 +145,6 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="isAdmin"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 mt-2">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
-                        className="mt-1"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Register as Admin (For testing)</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
               <Button type="submit" className="w-full mt-6" disabled={loading}>
                 {loading ? "Creating account..." : "Sign Up"}
               </Button>
