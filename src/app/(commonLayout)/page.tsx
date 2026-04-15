@@ -400,6 +400,12 @@ export default function HomePage() {
   const editorPicks = editorPicksResp?.data ?? [];
   const heroMovie = topRated[0] || newlyAdded[0];
 
+  // Deduplicate spotlight movies (prevent hero movie appearing twice)
+  const allSpotlightMovies = [heroMovie, ...topRated, ...newlyAdded].filter(Boolean);
+  const uniqueSpotlightMovies = allSpotlightMovies.filter(
+    (movie, index, self) => self.findIndex((m) => m.id === movie.id) === index
+  );
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground pb-20">
       {/* ── HERO ── */}
@@ -408,7 +414,7 @@ export default function HomePage() {
       ) : heroMovie ? (
         <HeroSpotlight
           movie={heroMovie}
-          spotlightMovies={[heroMovie, ...topRated, ...newlyAdded]}
+          spotlightMovies={uniqueSpotlightMovies}
         />
       ) : null}
 
