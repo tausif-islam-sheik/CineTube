@@ -27,6 +27,7 @@ import {
   ThumbsDown,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -60,7 +61,7 @@ export default function AdminReviewsPage() {
   const queryClient = useQueryClient();
   const LIMIT = 10;
 
-  const { data, isLoading } = useQuery<{
+  const { data, isLoading, error: queueError } = useQuery<{
     data: QueueItem[];
     meta: { total: number; totalPages: number; page: number };
   }>({
@@ -73,8 +74,33 @@ export default function AdminReviewsPage() {
         ...(statusFilter !== "all" && { status: statusFilter }),
       });
       const { data } = await apiClient.get(`/api/v1/moderation/queue?${params}`);
+      console.log("[Admin Reviews] Queue response:", data);
       return data;
     },
+  });
+
+  // Log errors for debugging
+  if (queueError) {
+    console.error("[Admin Reviews] Failed to load moderation queue:", queueError);
+  }
+
+  // Fallback: Fetch reviews directly when moderation queue fails
+  const { data: directReviews, isLoading: directLoading } = useQuery<{
+    data: any[];
+    meta: { total: number; totalPages: number; page: number };
+  }>({
+    queryKey: ["admin", "reviews-direct", statusFilter, page],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        limit: String(LIMIT),
+        page: String(page),
+        ...(statusFilter !== "all" && { status: statusFilter }),
+      });
+      const { data } = await apiClient.get(`/api/v1/reviews?${params}`);
+      console.log("[Admin Reviews] Direct reviews response:", data);
+      return data;
+    },
+    enabled: !!queueError, // Only run when moderation queue fails
   });
 
   // Stats query
@@ -88,11 +114,22 @@ export default function AdminReviewsPage() {
 
   const approveMutation = useMutation({
     mutationFn: async (reviewId: string) => {
-      await apiClient.post(`/api/v1/moderation/reviews/${reviewId}/approve`);
+      try {
+        // Try moderation API first
+        await apiClient.post(`/api/v1/moderation/reviews/${reviewId}/approve`);
+      } catch (err: any) {
+        // Fallback: update review status directly
+        if (err?.response?.status === 404 || err?.response?.status === 400) {
+          await apiClient.patch(`/api/v1/reviews/${reviewId}/status`, { status: "APPROVED" });
+        } else {
+          throw err;
+        }
+      }
     },
     onSuccess: () => {
       toast.success("Review approved and published.");
       queryClient.invalidateQueries({ queryKey: ["admin", "moderation-queue"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "reviews-direct"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "moderation-stats"] });
     },
     onError: (err: any) => {
@@ -102,13 +139,24 @@ export default function AdminReviewsPage() {
 
   const rejectMutation = useMutation({
     mutationFn: async ({ reviewId, reason }: { reviewId: string; reason: string }) => {
-      await apiClient.post(`/api/v1/moderation/reviews/${reviewId}/reject`, {
-        reason,
-      });
+      try {
+        // Try moderation API first
+        await apiClient.post(`/api/v1/moderation/reviews/${reviewId}/reject`, {
+          reason,
+        });
+      } catch (err: any) {
+        // Fallback: update review status directly
+        if (err?.response?.status === 404 || err?.response?.status === 400) {
+          await apiClient.patch(`/api/v1/reviews/${reviewId}/status`, { status: "REJECTED", reason });
+        } else {
+          throw err;
+        }
+      }
     },
     onSuccess: () => {
       toast.success("Review rejected.");
       queryClient.invalidateQueries({ queryKey: ["admin", "moderation-queue"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "reviews-direct"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "moderation-stats"] });
       setRejectDialogOpen(false);
       setRejectingItem(null);
@@ -125,9 +173,10 @@ export default function AdminReviewsPage() {
     setRejectDialogOpen(true);
   };
 
-  const items = data?.data ?? [];
-  const totalPages = data?.meta?.totalPages ?? 1;
-  const total = data?.meta?.total ?? 0;
+  // Use moderation queue data if available, otherwise fallback to direct reviews
+  const items = (queueError ? directReviews?.data : data?.data) ?? [];
+  const totalPages = (queueError ? directReviews?.meta?.totalPages : data?.meta?.totalPages) ?? 1;
+  const total = (queueError ? directReviews?.meta?.total : data?.meta?.total) ?? 0;
 
   const statusTabs: { label: string; value: StatusFilter; icon: React.ReactNode }[] = [
     { label: "Pending", value: "PENDING", icon: <Clock className="w-4 h-4" /> },
@@ -192,7 +241,7 @@ export default function AdminReviewsPage() {
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap items-center">
         {statusTabs.map((tab) => (
           <button
             key={tab.value}
@@ -215,14 +264,32 @@ export default function AdminReviewsPage() {
             )}
           </button>
         ))}
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          onClick={() => {
+            queryClient.invalidateQueries({ queryKey: ["admin", "moderation-queue"] });
+            queryClient.invalidateQueries({ queryKey: ["admin", "moderation-stats"] });
+            toast.info("Refreshing queue...");
+          }}
+        >
+          <RefreshCw className="w-4 h-4 mr-1" /> Refresh
+        </Button>
       </div>
 
       {/* Items List */}
       <div className="space-y-3">
-        {isLoading ? (
+        {isLoading || directLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-36 w-full rounded-xl" />
           ))
+        ) : queueError && !directReviews ? (
+          <div className="text-center py-20 text-red-500 border border-red-200 rounded-xl bg-red-50">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p className="font-medium">Failed to load moderation queue</p>
+            <p className="text-sm text-red-400">{(queueError as any)?.response?.data?.message || "Please check the console for details"}</p>
+          </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground border rounded-xl bg-card">
             <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
@@ -231,11 +298,16 @@ export default function AdminReviewsPage() {
           </div>
         ) : (
           items.map((item) => {
-            const review = item.content;
-            const isPending = item.status === "PENDING";
+            // Support both moderation queue structure (item.content) and direct reviews structure (flat)
+            const review = item.content ?? item;
+            const reviewId = item.contentId ?? item.id;
+            const itemStatus = item.status ?? review.status;
+            const itemCreatedAt = item.createdAt ?? review.createdAt;
+            const isPending = itemStatus === "PENDING";
+
             return (
               <div
-                key={item.id}
+                key={item.id || review.id}
                 className="bg-card border rounded-xl p-5 space-y-3 transition-all hover:border-primary/30"
               >
                 {/* Top row */}
@@ -258,15 +330,15 @@ export default function AdminReviewsPage() {
                   {/* Status Badge */}
                   <Badge
                     className={`shrink-0 ${
-                      item.status === "APPROVED"
+                      itemStatus === "APPROVED"
                         ? "bg-green-500/20 text-green-500 border-green-500/30"
-                        : item.status === "REJECTED"
+                        : itemStatus === "REJECTED"
                         ? "bg-red-500/20 text-red-500 border-red-500/30"
                         : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
                     }`}
                     variant="outline"
                   >
-                    {item.status}
+                    {itemStatus}
                   </Badge>
                 </div>
 
@@ -305,7 +377,7 @@ export default function AdminReviewsPage() {
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-xs text-muted-foreground">
-                    Submitted {new Date(item.createdAt).toLocaleDateString("en-US", {
+                    Submitted {new Date(itemCreatedAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -320,7 +392,7 @@ export default function AdminReviewsPage() {
                         size="sm"
                         variant="outline"
                         className="border-red-500/40 text-red-500 hover:bg-red-500/10 hover:text-red-500 gap-1.5"
-                        onClick={() => handleRejectOpen(item)}
+                        onClick={() => handleRejectOpen({ ...item, content: review, contentId: reviewId })}
                         disabled={rejectMutation.isPending || approveMutation.isPending}
                       >
                         <ThumbsDown className="w-3.5 h-3.5" />
@@ -329,7 +401,7 @@ export default function AdminReviewsPage() {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white gap-1.5"
-                        onClick={() => approveMutation.mutate(item.contentId)}
+                        onClick={() => approveMutation.mutate(reviewId)}
                         disabled={approveMutation.isPending || rejectMutation.isPending}
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />

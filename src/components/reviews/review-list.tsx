@@ -153,6 +153,11 @@ function ReviewCard({
 
           {isEditing ? (
             <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-3">
+              {!isUnpublished && (
+                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                  Note: Editing an approved review will resubmit it for moderation.
+                </p>
+              )}
               <Input
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
@@ -236,16 +241,28 @@ function ReviewCard({
               <Heart className={cn("mr-1 h-4 w-4", isLiked && "fill-current")} />
               {isLiked ? "Liked" : "Like"} ({likesCount})
             </Button>
-            {isOwner && isUnpublished && !isEditing && (
+            {isOwner && !isEditing && (
               <>
-                <Button variant="ghost" size="sm" className="ml-2 h-8 px-2 text-xs" onClick={() => setIsEditing(true)}>
+                <Button variant="ghost" size="sm" className="ml-2 h-8 px-2 text-xs" onClick={() => {
+                  if (review.status === 'APPROVED') {
+                    toast.error("Published reviews cannot be edited");
+                    return;
+                  }
+                  setIsEditing(true);
+                }}>
                   Edit
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-8 px-2 text-xs text-red-500 hover:text-red-500"
-                  onClick={() => deleteReviewMutation.mutate()}
+                  onClick={() => {
+                    if (review.status === 'APPROVED') {
+                      toast.error("Published reviews cannot be deleted");
+                      return;
+                    }
+                    deleteReviewMutation.mutate();
+                  }}
                   disabled={deleteReviewMutation.isPending}
                 >
                   {deleteReviewMutation.isPending ? "Deleting..." : "Delete"}

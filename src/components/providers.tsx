@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useState } from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>
         {children}
+        <Toaster position="bottom-right" richColors closeButton />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </NextThemesProvider>
