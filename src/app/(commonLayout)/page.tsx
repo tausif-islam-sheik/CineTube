@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { PricingSection } from "@/components/home/pricing-section";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* ─────────────────────────────────────────────
    Animated gradient background component
@@ -148,8 +149,72 @@ function MovieRow({
 }
 
 /* ─────────────────────────────────────────────
+   Hero Spotlight Skeleton Loader
+   ───────────────────────────────────────────── */
+function HeroSpotlightSkeleton() {
+  return (
+    <div className="relative w-full h-screen overflow-hidden bg-black">
+      {/* Skeleton Backdrop */}
+      <div className="absolute inset-0 w-full h-full">
+        <Skeleton className="w-full h-full" />
+      </div>
+
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.8)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent lg:opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+
+      {/* Skeleton Content */}
+      <div className="absolute inset-0 z-10">
+        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-8 md:px-12 lg:px-20 md:pb-10">
+          <div className="flex items-end justify-between gap-6">
+            <div className="max-w-2xl space-y-8">
+              {/* Spotlight Label Skeleton */}
+              <Skeleton className="h-4 w-32 bg-white/20" />
+
+              {/* Title Skeleton */}
+              <Skeleton className="h-16 md:h-24 w-3/4 bg-white/20" />
+
+              {/* Info Badges Skeleton */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Skeleton className="h-6 w-16 rounded-full bg-white/10" />
+                <Skeleton className="h-6 w-14 rounded-full bg-white/10" />
+                <Skeleton className="h-6 w-12 rounded-full bg-white/10" />
+                <Skeleton className="h-6 w-20 rounded-full bg-white/10" />
+              </div>
+
+              {/* Description Skeleton */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full max-w-xl bg-white/10" />
+                <Skeleton className="h-4 w-2/3 max-w-xl bg-white/10" />
+              </div>
+
+              {/* Buttons Skeleton */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Skeleton className="h-14 w-32 rounded-xl bg-white/20" />
+                <Skeleton className="h-14 w-14 rounded-xl bg-white/10" />
+                <Skeleton className="h-14 w-14 rounded-xl bg-white/10" />
+              </div>
+            </div>
+
+            {/* Thumbnail Strip Skeleton */}
+            <div className="hidden md:flex flex-col items-end gap-3">
+              <div className="flex items-center gap-2 rounded-xl bg-black/35 p-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-20 rounded-md bg-white/10" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    Hero Spotlight
- ───────────────────────────────────────────── */
+   ───────────────────────────────────────────── */
 function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovies: Movie[] }) {
   type WatchlistEntry = { id: string; movieId: string };
 
@@ -303,7 +368,7 @@ export default function HomePage() {
   const { data: session } = useSession();
 
   // Fetch Newly Added
-  const { data: newlyAddedResp } = useQuery<{ data: Movie[] }>({
+  const { data: newlyAddedResp, isLoading: isLoadingNewlyAdded } = useQuery<{ data: Movie[] }>({
     queryKey: ["homepage", "newly-added"],
     queryFn: async () => {
       const { data } = await apiClient.get("/api/v1/movies?limit=15&sortBy=createdAt&order=desc");
@@ -312,7 +377,7 @@ export default function HomePage() {
   });
 
   // Fetch Top Rated
-  const { data: topRatedResp } = useQuery<{ data: Movie[] }>({
+  const { data: topRatedResp, isLoading: isLoadingTopRated } = useQuery<{ data: Movie[] }>({
     queryKey: ["homepage", "top-rated"],
     queryFn: async () => {
       const { data } = await apiClient.get("/api/v1/movies?limit=15&sortBy=rating&order=desc");
@@ -321,7 +386,7 @@ export default function HomePage() {
   });
 
   // Fetch Editor's Picks (High Rated in specific genres or just high rated)
-  const { data: editorPicksResp } = useQuery<{ data: Movie[] }>({
+  const { data: editorPicksResp, isLoading: isLoadingEditorPicks } = useQuery<{ data: Movie[] }>({
     queryKey: ["homepage", "editor-picks"],
     queryFn: async () => {
       const { data } = await apiClient.get("/api/v1/movies?limit=12&minRating=8&sortBy=rating&order=desc");
@@ -329,6 +394,7 @@ export default function HomePage() {
     },
   });
 
+  const isLoadingHero = isLoadingTopRated || isLoadingNewlyAdded;
   const newlyAdded = newlyAddedResp?.data ?? [];
   const topRated = topRatedResp?.data ?? [];
   const editorPicks = editorPicksResp?.data ?? [];
@@ -337,12 +403,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground pb-20">
       {/* ── HERO ── */}
-      {heroMovie && (
+      {isLoadingHero ? (
+        <HeroSpotlightSkeleton />
+      ) : heroMovie ? (
         <HeroSpotlight
           movie={heroMovie}
           spotlightMovies={[heroMovie, ...topRated, ...newlyAdded]}
         />
-      )}
+      ) : null}
 
 
 
