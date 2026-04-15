@@ -12,6 +12,8 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +37,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Film,
+  User,
+  Calendar,
+  Clock,
+  Tag,
+  Users,
+  Globe,
+  DollarSign,
+  Image,
+  Play,
+  Video,
+  Sparkles,
+  Clapperboard,
+} from "lucide-react";
 
 const GENRES = [
   "Action", "Adventure", "Animation", "Comedy", "Crime",
@@ -177,262 +194,413 @@ export function MovieFormDialog({ open, onClose, movie }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Movie" : "Add New Movie"}</DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? "Update the movie details below."
-              : "Fill in the details to add a new movie to the catalog."}
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
-            className="space-y-4"
-          >
-            {/* Title */}
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Inception" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+      <DialogContent className="!max-w-[700px] w-[96vw] max-h-[92vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/20 border-2 shadow-2xl">
+        {/* Header with gradient */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-background px-8 py-6 border-b">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Clapperboard className="w-24 h-24" />
+          </div>
+          <DialogHeader className="relative z-10 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/20">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <DialogTitle className="text-2xl font-bold tracking-tight">
+                {isEdit ? "Edit Movie" : "Add New Movie"}
+              </DialogTitle>
+              {isEdit && (
+                <Badge variant="secondary" className="ml-2">Editing</Badge>
               )}
-            />
-
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Movie synopsis..."
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Director + Platform */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="director"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Director *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Christopher Nolan" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="platform"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Platform *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="CineTube" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
+            <DialogDescription className="text-base text-muted-foreground">
+              {isEdit
+                ? "Update the movie details in your catalog."
+                : "Create a new movie entry for your streaming platform."}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-            {/* Release Year + Duration */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="releaseYear"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Release Year *</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="2010" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration (min)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="148" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+        <div className="overflow-y-auto max-h-[calc(92vh-180px)]">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
+              className="p-8 space-y-8"
+            >
+              {/* Section: Basic Info */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Film className="w-5 h-5 text-primary" />
+                  <h3>Basic Information</h3>
+                  <Separator className="flex-1 ml-4" />
+                </div>
+                
+                <div className="grid gap-6">
+                  {/* Title */}
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">Movie Title *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g. Inception" 
+                            {...field} 
+                            className="h-12 text-lg"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            {/* Genre */}
-            <FormField
-              control={form.control}
-              name="genre"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Genre * (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Action, Sci-Fi, Thriller" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  {/* Description */}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">Synopsis *</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Enter a compelling movie synopsis..."
+                            rows={4}
+                            {...field}
+                            className="resize-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
-            {/* Cast */}
-            <FormField
-              control={form.control}
-              name="cast"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cast (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Leonardo DiCaprio, Joseph Gordon-Levitt"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Section: Cast & Crew */}
+              <div className="space-y-7">
+                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Users className="w-5 h-5 text-primary" />
+                  <h3>Cast & Crew</h3>
+                  <Separator className="flex-1 ml-4" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="director"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          Director *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Christopher Nolan" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="platform"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-muted-foreground" />
+                          Platform *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="CineTube" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            {/* Language */}
-            <FormField
-              control={form.control}
-              name="language"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Language * (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="English" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Pricing + Price */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pricing"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pricing *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
+                <FormField
+                  control={form.control}
+                  name="cast"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        Cast (comma-separated)
+                      </FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select tier" />
-                        </SelectTrigger>
+                        <Input
+                          placeholder="Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page..."
+                          {...field}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="FREE">Free</SelectItem>
-                        <SelectItem value="PREMIUM">Premium</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price ($)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="9.99" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            {/* URLs */}
-            <FormField
-              control={form.control}
-              name="posterUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Poster URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="trailerUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trailer URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="youtubeLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>YouTube Link</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://youtube.com/watch?v=..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Section: Details */}
+              <div className="space-y-7">
+                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  <h3>Movie Details</h3>
+                  <Separator className="flex-1 ml-4" />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="releaseYear"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          Release Year *
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="2010" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          Duration (min)
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="148" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="language"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-muted-foreground" />
+                          Language *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="English, Spanish..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <DialogFooter className="pt-4 gap-2">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending
-                  ? isEdit
-                    ? "Saving..."
-                    : "Adding..."
-                  : isEdit
-                  ? "Save Changes"
-                  : "Add Movie"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                <FormField
+                  control={form.control}
+                  name="genre"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-muted-foreground" />
+                        Genres * (comma-separated)
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Action, Sci-Fi, Thriller, Mystery..." {...field} />
+                      </FormControl>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {GENRES.slice(0, 8).map((g) => (
+                          <Badge
+                            key={g}
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-primary/20 transition-colors"
+                            onClick={() => {
+                              const current = field.value || "";
+                              const genres = current.split(",").map(s => s.trim()).filter(Boolean);
+                              if (!genres.includes(g)) {
+                                field.onChange(current ? `${current}, ${g}` : g);
+                              }
+                            }}
+                          >
+                            + {g}
+                          </Badge>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Section: Pricing */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <DollarSign className="w-5 h-5 text-primary" />
+                  <h3>Pricing</h3>
+                  <Separator className="flex-1 ml-4" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="pricing"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">Pricing Tier *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Select tier" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="FREE">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-green-500/20 text-green-700">Free</Badge>
+                                <span>Available to all users</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="PREMIUM">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-amber-500/20 text-amber-700">Premium</Badge>
+                                <span>Paid content</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">Price (USD)</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input 
+                              type="number" 
+                              step="0.01" 
+                              placeholder="9.99" 
+                              {...field} 
+                              className="pl-10 h-12"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Section: Media URLs */}
+              <div className="space-y-7">
+                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Image className="w-5 h-5 text-primary" />
+                  <h3>Media Assets</h3>
+                  <Separator className="flex-1 ml-4" />
+                </div>
+                
+                <div className="grid gap-6">
+                  <FormField
+                    control={form.control}
+                    name="posterUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Image className="w-4 h-4 text-muted-foreground" />
+                          Poster Image URL
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/poster.jpg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="trailerUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Play className="w-4 h-4 text-muted-foreground" />
+                            Trailer URL
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="youtubeLink"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Video className="w-4 h-4 text-muted-foreground" />
+                            YouTube Link
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="pt-6 border-t">
+                <DialogFooter className="gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={onClose}
+                    size="lg"
+                    className="px-8"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={mutation.isPending}
+                    size="lg"
+                    className="px-8 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+                  >
+                    {mutation.isPending ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                        {isEdit ? "Saving..." : "Adding..."}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {isEdit ? "Save Changes" : "Add Movie"}
+                      </>
+                    )}
+                  </Button>
+                </DialogFooter>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
