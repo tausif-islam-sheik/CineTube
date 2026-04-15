@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="h-16 flex flex-col justify-center px-6 border-b">
              <Link href="/" className="flex items-center space-x-2 text-primary">
                 <Popcorn className="w-6 h-6" />
-                <span className="font-bold tracking-tight">Admin<span className="text-foreground">Panel</span></span>
+                <span className="font-semibold text-2xl tracking-tight">Admin <span className="text-foreground">Panel</span></span>
              </Link>
           </div>
           <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">

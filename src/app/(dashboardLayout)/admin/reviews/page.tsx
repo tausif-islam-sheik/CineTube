@@ -61,6 +61,7 @@ export default function AdminReviewsPage() {
   const queryClient = useQueryClient();
   const LIMIT = 10;
 
+  // Moderation queue only returns PENDING reviews - only use it for PENDING filter
   const { data, isLoading, error: queueError } = useQuery<{
     data: QueueItem[];
     meta: { total: number; totalPages: number; page: number };
@@ -70,13 +71,14 @@ export default function AdminReviewsPage() {
       const params = new URLSearchParams({
         limit: String(LIMIT),
         page: String(page),
-        type: "review",
+        type: "REVIEW",
         ...(statusFilter !== "all" && { status: statusFilter }),
       });
       const { data } = await apiClient.get(`/api/v1/moderation/queue?${params}`);
-      console.log("[Admin Reviews] Queue response:", data);
+      
       return data;
     },
+    enabled: statusFilter === "PENDING",
   });
 
   // Log errors for debugging
@@ -84,7 +86,7 @@ export default function AdminReviewsPage() {
     console.error("[Admin Reviews] Failed to load moderation queue:", queueError);
   }
 
-  // Fallback: Fetch reviews directly when moderation queue fails
+  // Fetch reviews directly for APPROVED/REJECTED filters, or as fallback when moderation queue fails
   const { data: directReviews, isLoading: directLoading } = useQuery<{
     data: any[];
     meta: { total: number; totalPages: number; page: number };
@@ -97,10 +99,19 @@ export default function AdminReviewsPage() {
         ...(statusFilter !== "all" && { status: statusFilter }),
       });
       const { data } = await apiClient.get(`/api/v1/reviews?${params}`);
-      console.log("[Admin Reviews] Direct reviews response:", data);
+      
+      if (data?.data?.[0]) {
+        console.log("[Admin Reviews] First review sample:", {
+          id: data.data[0].id,
+          user: data.data[0].user,
+          movie: data.data[0].movie,
+          hasUser: !!data.data[0].user,
+          hasMovie: !!data.data[0].movie,
+        });
+      }
       return data;
     },
-    enabled: !!queueError, // Only run when moderation queue fails
+    enabled: statusFilter !== "PENDING" || !!queueError,
   });
 
   // Stats query
@@ -173,10 +184,11 @@ export default function AdminReviewsPage() {
     setRejectDialogOpen(true);
   };
 
-  // Use moderation queue data if available, otherwise fallback to direct reviews
-  const items = (queueError ? directReviews?.data : data?.data) ?? [];
-  const totalPages = (queueError ? directReviews?.meta?.totalPages : data?.meta?.totalPages) ?? 1;
-  const total = (queueError ? directReviews?.meta?.total : data?.meta?.total) ?? 0;
+  // Use moderation queue for PENDING, direct reviews for APPROVED/REJECTED/ALL
+  const useDirectReviews = statusFilter !== "PENDING" || !!queueError;
+  const items = (useDirectReviews ? directReviews?.data : data?.data) ?? [];
+  const totalPages = (useDirectReviews ? directReviews?.meta?.totalPages : data?.meta?.totalPages) ?? 1;
+  const total = (useDirectReviews ? directReviews?.meta?.total : data?.meta?.total) ?? 0;
 
   const statusTabs: { label: string; value: StatusFilter; icon: React.ReactNode }[] = [
     { label: "Pending", value: "PENDING", icon: <Clock className="w-4 h-4" /> },
@@ -200,28 +212,28 @@ export default function AdminReviewsPage() {
         {[
           {
             label: "Pending",
-            value: stats?.pending ?? "—",
+            value: stats?.reviews?.pending ?? "—",
             color: "text-yellow-500",
             bg: "bg-yellow-500/10",
             icon: <Clock className="w-5 h-5 text-yellow-500" />,
           },
           {
             label: "Approved",
-            value: stats?.approved ?? "—",
+            value: stats?.reviews?.approved ?? "—",
             color: "text-green-500",
             bg: "bg-green-500/10",
             icon: <CheckCircle className="w-5 h-5 text-green-500" />,
           },
           {
             label: "Rejected",
-            value: stats?.rejected ?? "—",
+            value: stats?.reviews?.rejected ?? "—",
             color: "text-red-500",
             bg: "bg-red-500/10",
             icon: <XCircle className="w-5 h-5 text-red-500" />,
           },
           {
             label: "Flagged",
-            value: stats?.flagged ?? "—",
+            value: stats?.flaggedContent ?? "—",
             color: "text-orange-500",
             bg: "bg-orange-500/10",
             icon: <AlertTriangle className="w-5 h-5 text-orange-500" />,
@@ -257,9 +269,9 @@ export default function AdminReviewsPage() {
           >
             {tab.icon}
             {tab.label}
-            {tab.value === "PENDING" && stats?.pending > 0 && (
+            {tab.value === "PENDING" && stats?.reviews?.pending > 0 && (
               <span className="ml-1 bg-yellow-500 text-black text-xs rounded-full px-1.5 py-0.5 font-bold">
-                {stats.pending}
+                {stats.reviews.pending}
               </span>
             )}
           </button>
@@ -298,12 +310,16 @@ export default function AdminReviewsPage() {
           </div>
         ) : (
           items.map((item) => {
-            // Support both moderation queue structure (item.content) and direct reviews structure (flat)
-            const review = item.content ?? item;
-            const reviewId = item.contentId ?? item.id;
+            // Support multiple structures:
+            // - moderation queue: { type, data, review object }
+            // - direct reviews: item IS the review object
+            const review = item.data ?? item;
+            const reviewId = review.id;
             const itemStatus = item.status ?? review.status;
             const itemCreatedAt = item.createdAt ?? review.createdAt;
             const isPending = itemStatus === "PENDING";
+            // Backend stores review text as 'content', frontend calls it 'comment'
+            const reviewText = review.content ?? review.comment;
 
             return (
               <div
@@ -366,11 +382,11 @@ export default function AdminReviewsPage() {
                 </div>
 
                 {/* Review comment */}
-                {review?.comment && (
+                {reviewText && (
                   <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-border pl-3 italic">
-                    {review.comment.length > 280
-                      ? `${review.comment.slice(0, 280)}…`
-                      : review.comment}
+                    {reviewText.length > 280
+                      ? `${reviewText.slice(0, 280)}…`
+                      : reviewText}
                   </p>
                 )}
 
