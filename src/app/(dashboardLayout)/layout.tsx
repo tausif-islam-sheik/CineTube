@@ -1,8 +1,9 @@
 "use client";
 
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 import { Popcorn, LayoutDashboard, Film, ShieldAlert, FileText, CheckSquare, Settings } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,15 @@ import { Button } from "@/components/ui/button";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Helper to check if route is active
+  const isActive = (path: string) => {
+    if (path === "/admin") {
+      return pathname === "/admin" || pathname === "/admin/";
+    }
+    return pathname.startsWith(path);
+  };
 
   useEffect(() => {
     // If auth is loaded and user is not an admin, redirect them out
@@ -44,25 +54,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-2 mt-4">Overview</div>
              <Link href="/admin">
-               <Button variant="ghost" className="w-full justify-start">
-                  <LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard
+               <Button
+                 variant={isActive("/admin") ? "secondary" : "ghost"}
+                 className={cn(
+                   "w-full justify-start",
+                   isActive("/admin") && "bg-primary/10 text-primary hover:bg-primary/20 font-medium"
+                 )}
+               >
+                  <LayoutDashboard className={cn("w-4 h-4 mr-2", isActive("/admin") && "text-primary")} /> Dashboard
                </Button>
              </Link>
              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-2 mt-6">Content Management</div>
              <Link href="/admin/media">
-               <Button variant="ghost" className="w-full justify-start">
-                  <Film className="w-4 h-4 mr-2" /> Media Library
+               <Button
+                 variant={isActive("/admin/media") ? "secondary" : "ghost"}
+                 className={cn(
+                   "w-full justify-start",
+                   isActive("/admin/media") && "bg-primary/10 text-primary hover:bg-primary/20 font-medium"
+                 )}
+               >
+                  <Film className={cn("w-4 h-4 mr-2", isActive("/admin/media") && "text-primary")} /> Media Library
                </Button>
              </Link>
              <Link href="/admin/reviews">
-               <Button variant="ghost" className="w-full justify-start">
-                  <CheckSquare className="w-4 h-4 mr-2" /> Review Queue
+               <Button
+                 variant={isActive("/admin/reviews") ? "secondary" : "ghost"}
+                 className={cn(
+                   "w-full justify-start",
+                   isActive("/admin/reviews") && "bg-primary/10 text-primary hover:bg-primary/20 font-medium"
+                 )}
+               >
+                  <CheckSquare className={cn("w-4 h-4 mr-2", isActive("/admin/reviews") && "text-primary")} /> Review Queue
                </Button>
              </Link>
              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-2 mt-6">Configuration</div>
              <Link href="/admin/settings">
-               <Button variant="ghost" className="w-full justify-start">
-                  <Settings className="w-4 h-4 mr-2" /> Settings
+               <Button
+                 variant={isActive("/admin/settings") ? "secondary" : "ghost"}
+                 className={cn(
+                   "w-full justify-start",
+                   isActive("/admin/settings") && "bg-primary/10 text-primary hover:bg-primary/20 font-medium"
+                 )}
+               >
+                  <Settings className={cn("w-4 h-4 mr-2", isActive("/admin/settings") && "text-primary")} /> Settings
                </Button>
              </Link>
           </nav>
