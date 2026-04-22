@@ -25,7 +25,7 @@ const reviewSchema = z.object({
   rating: z.number().min(1).max(10),
   title: z.string().min(2, "Title is too short").max(100),
   comment: z.string().min(10, "Review must be at least 10 characters").max(2000),
-  containsSpoiler: z.boolean().default(false),
+  containsSpoiler: z.boolean(),
   tagsInput: z.string().max(200).optional(),
 });
 

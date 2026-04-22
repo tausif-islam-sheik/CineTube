@@ -292,7 +292,7 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
                 {movie.title}
               </h1>
               <div className="flex flex-wrap items-center gap-2 text-xs
-              md:text-lg text-white/85">
+              md:text-md text-white/85">
                 <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.genre?.[0] || "Drama"}</span>
                 <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.releaseYear}</span>
                 <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.duration ? `${movie.duration}m` : "N/A"}</span>
@@ -306,7 +306,7 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
               </p>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Button asChild className="h-14 rounded-xl bg-primary px-10 font-semibold text-xl uppercase tracking-wide">
+                <Button asChild className="h-12 md:h-14 rounded-lg bg-primary px-4 md:px-8 font-semibold text-lg md:text-xl uppercase tracking-wide">
                   <Link href={`/movie/${movie.id}`}>
                     <Play className="mr-1 h-6 w-6 fill-current" />
                     Play
@@ -317,7 +317,7 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
                   disabled={toggleWatchlistMutation.isPending}
                   aria-label="Toggle watchlist"
                   className={cn(
-                    "inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur transition-colors hover:bg-white/30",
+                    "inline-flex h-12 md:h-14 w-12 md:w-14 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur transition-colors hover:bg-white/30",
                     isWatchlisted && "bg-primary/80 hover:bg-primary"
                   )}
                 >
@@ -325,7 +325,7 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
                 </button>
                 <Link
                   href={`/movie/${movie.id}`}
-                  className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-sm text-white backdrop-blur hover:bg-white/30 transition-colors"
+                  className="inline-flex h-12 md:h-14 w-12 md:w-14 items-center justify-center rounded-lg bg-white/20 text-sm text-white backdrop-blur hover:bg-white/30 transition-colors"
                 >
                   <Info className="h-4 w-4" />
                 </Link>

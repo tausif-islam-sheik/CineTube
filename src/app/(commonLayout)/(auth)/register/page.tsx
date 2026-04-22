@@ -33,7 +33,6 @@ const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string(),
-  isAdmin: z.boolean().default(false),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -50,7 +49,7 @@ export default function RegisterPage() {
     setError("");
     await signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3000/",
+      callbackURL: process.env.NEXT_PUBLIC_APP_URL,
     });
   };
 
@@ -61,7 +60,6 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      isAdmin: false,
     },
   });
 
@@ -72,7 +70,6 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
         name: values.name,
-        role: values.isAdmin ? "ADMIN" : "USER",
     });
     
     if (error) {
@@ -163,7 +160,7 @@ export default function RegisterPage() {
           </Form>
 
           {/* Divider */}
-          <div className="relative">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>

@@ -68,7 +68,7 @@ export default function MovieDetailsPage() {
     !!userSubscription &&
     String(userSubscription.status).toUpperCase() === "ACTIVE";
   const hasPremiumAccess =
-    subscriptionActive || session?.user?.role === "ADMIN";
+    subscriptionActive || (session?.user as any)?.role === "ADMIN";
   const canWatch = isFree || hasPremiumAccess;
 
   const isWatchlisted = Array.isArray(watchlists) && watchlists.some((w: any) => w.movieId === id);
@@ -220,8 +220,8 @@ export default function MovieDetailsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-4 items-center">
-                     <Button 
-                       size="xl" 
+                     <Button
+                       size="lg"
                        className="rounded-full shadow-2xl gap-3 px-10 h-16 text-lg font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
                        onClick={() => {
                            if (!session) {
@@ -241,8 +241,8 @@ export default function MovieDetailsPage() {
                         {canWatch ? "Watch Now" : "Unlock with Premium"}
                      </Button>
 
-                     <Button 
-                       size="xl" 
+                     <Button
+                       size="lg"
                        variant="outline"
                        className="rounded-full shadow-xl gap-2 px-8 h-16 border-white/10 bg-white backdrop-blur-md hover:bg-white/10 transition-all font-bold"
                        onClick={() => setIsTrailerOpen(true)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { FilterSidebar } from "@/components/movies/filter-sidebar";
 import { useMovies } from "@/hooks/use-movies";
 import { MovieGridSkeleton } from "@/components/movies/movie-card-skeleton";
@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Star, Clock } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 
-export default function DiscoverPage() {
+function DiscoverContent() {
   const searchParams = useSearchParams();
   const { ref, inView } = useInView();
 
@@ -130,5 +130,13 @@ export default function DiscoverPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DiscoverPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+      <DiscoverContent />
+    </Suspense>
   );
 }

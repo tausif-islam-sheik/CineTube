@@ -44,7 +44,7 @@ export default function LoginPage() {
     setError("");
     await signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3000/",
+      callbackURL: process.env.NEXT_PUBLIC_APP_URL,
     });
   };
 
@@ -126,7 +126,7 @@ export default function LoginPage() {
           </Form>
 
           {/* Divider */}
-          <div className="relative">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>

@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!isPending) {
         if (!session) {
             router.replace("/login");
-        } else if (session.user.role !== "ADMIN") {
+        } else if ((session.user as any).role !== "ADMIN") {
             router.replace("/");
         }
     }
@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   // Double check so UI doesn't flash
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user as any).role !== "ADMIN") {
       return null;
   }
 

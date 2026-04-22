@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const router = useRouter();
@@ -83,5 +83,13 @@ export default function CheckoutSuccessPage() {
          </Link>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-20 text-center">Loading...</div>}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

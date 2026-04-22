@@ -140,7 +140,7 @@ export function Navbar() {
                 <Input
                   ref={searchInputRef}
                   type="search"
-                  placeholder="Search movies, shows..."
+                  placeholder="Search movies..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -151,7 +151,7 @@ export function Navbar() {
                     }
                   }}
                   className={cn(
-                    "h-8 w-52 focus-visible:ring-primary/50 text-sm",
+                    "h-8 w-32 sm:w-52 focus-visible:ring-primary/50 text-sm",
                     isOverlay
                       ? "bg-white/10 border-white/20 text-white placeholder:text-white/60"
                       : "bg-background border-border text-foreground placeholder:text-muted-foreground"
