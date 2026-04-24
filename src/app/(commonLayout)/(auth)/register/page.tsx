@@ -26,7 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Popcorn } from "lucide-react";
+import { Popcorn, Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -41,17 +41,19 @@ const formSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  // const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    setError("");
-    await signIn.social({
-      provider: "google",
-      callbackURL: process.env.NEXT_PUBLIC_APP_URL,
-    });
-  };
+  // const handleGoogleSignIn = async () => {
+  //   setGoogleLoading(true);
+  //   setError("");
+  //   await signIn.social({
+  //     provider: "google",
+  //     callbackURL: process.env.NEXT_PUBLIC_APP_URL,
+  //   });
+  // };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,7 +85,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md mt-10 mb-10">
+      <Card className="w-full max-w-md mt-10 mb-10 space-y-3">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
              <Popcorn className="h-10 w-10 text-primary" />
@@ -95,7 +97,7 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {error && (
                   <div className="p-3 rounded-md bg-destructive/15 text-destructive text-sm font-medium">
                       {error}
@@ -134,7 +136,24 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -147,7 +166,24 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,7 +196,7 @@ export default function RegisterPage() {
           </Form>
 
           {/* Divider */}
-          <div className="relative my-4">
+          {/* <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
@@ -169,10 +205,10 @@ export default function RegisterPage() {
                 Or continue with
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Google Sign In */}
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full"
             disabled={googleLoading}
@@ -209,7 +245,7 @@ export default function RegisterPage() {
                 Sign in with Google
               </span>
             )}
-          </Button>
+          </Button> */}
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">

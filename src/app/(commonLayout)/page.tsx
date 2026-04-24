@@ -495,8 +495,8 @@ export default function HomePage() {
           <div className="relative overflow-hidden rounded-[2rem] bg-primary p-12 md:p-20 text-center shadow-[0_20px_50px_rgba(var(--primary),0.3)]">
              <GradientOrb className="bg-white/20 -top-40 -left-40 w-96 h-96" />
              <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">Ready to dive in?</h2>
-                <p className="text-white/80 text-xl font-medium">Join over 500,000 cinephiles and start your journey today.</p>
+                <h2 className="text-3xl md:text-6xl font-black text-white tracking-tighter">Ready to dive in?</h2>
+                <p className="text-white/80 md:text-xl font-medium">Join over 500,000 cinephiles and start your journey today.</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link href="/register">
                     <Button size="lg" className="rounded-full px-12 h-16 text-lg bg-white text-primary hover:bg-zinc-100 font-black shadow-2xl">

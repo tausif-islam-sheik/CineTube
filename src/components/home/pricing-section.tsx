@@ -97,8 +97,8 @@ export function PricingSection() {
           <Star className="w-3.5 h-3.5" />
           Flexible Plans
         </div>
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight">Choose your cinematic experience</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-lg text-balance">
+        <h2 className="text-3xl md:text-5xl font-black tracking-tight">Choose your cinematic experience</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto md:text-lg text-balance">
           Whether you&apos;re a casual viewer or a hardcore cinephile, we have a plan tailored for your needs.
         </p>
       </div>

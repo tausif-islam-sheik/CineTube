@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "@/lib/auth-client";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -26,7 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Popcorn } from "lucide-react";
+import { Popcorn, Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -36,17 +36,18 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  // const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    setError("");
-    await signIn.social({
-      provider: "google",
-      callbackURL: process.env.NEXT_PUBLIC_APP_URL,
-    });
-  };
+  // const handleGoogleSignIn = async () => {
+  //   setGoogleLoading(true);
+  //   setError("");
+  //   await signIn.social({
+  //     provider: "google",
+  //     callbackURL: process.env.NEXT_PUBLIC_APP_URL,
+  //   });
+  // };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,23 +60,42 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     setError("");
-    const { data, error } = await signIn.email({
-        email: values.email,
-        password: values.password,
-    });
     
-    if (error) {
-        setError(error.message || "Failed to login. Please check your credentials.");
-        setLoading(false);
-    } else {
-        router.push("/");
-        router.refresh();
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to login. Please check your credentials.");
+      }
+
+      // Store tokens in localStorage or cookies as needed
+      if (data.data?.accessToken) {
+        localStorage.setItem("accessToken", data.data.accessToken);
+        localStorage.setItem("refreshToken", data.data.refreshToken);
+      }
+
+      router.push("/");
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || "Failed to login. Please check your credentials.");
+      setLoading(false);
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md space-y-5">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
              <Popcorn className="h-10 w-10 text-primary" />
@@ -111,9 +131,34 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -126,7 +171,7 @@ export default function LoginPage() {
           </Form>
 
           {/* Divider */}
-          <div className="relative my-4">
+          {/* <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />
             </div>
@@ -135,10 +180,10 @@ export default function LoginPage() {
                 Or continue with
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Google Sign In */}
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full"
             disabled={googleLoading}
@@ -175,7 +220,7 @@ export default function LoginPage() {
                 Sign in with Google
               </span>
             )}
-          </Button>
+          </Button> */}
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
