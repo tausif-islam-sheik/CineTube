@@ -10,7 +10,7 @@
 [![Stripe](https://img.shields.io/badge/Stripe-Payments-635bff?logo=stripe)](https://stripe.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[Live Demo](#) · [Backend Repository](https://github.com/tausif-islam-sheik/CineTube-Server) · [Report a Bug](#) · [Request a Feature](#)
+[Live Demo](https://cinetube-omega.vercel.app) · [Backend Repository](https://github.com/tausif-islam-sheik/CineTube-Server)
 
 </div>
 
@@ -18,7 +18,7 @@
 
 ## 📖 Overview
 
-CineTube is a Netflix-inspired movie streaming portal built with a modern full-stack architecture. Users can discover trending, popular, and upcoming movies, build personal watchlists, and unlock premium content through a Stripe-powered subscription system — all wrapped in a responsive, theme-aware UI.
+CineTube is a movie streaming portal built with a modern full-stack architecture. Users can discover trending, popular, and upcoming movies, build personal watchlists, and unlock premium content through a Stripe-powered subscription system — all wrapped in a responsive, theme-aware UI.
 
 ---
 
@@ -90,3 +90,6 @@ This project is licensed under the [MIT License](LICENSE).
 Made with ❤️ by [Tausif Islam Sheik](https://github.com/tausif-islam-sheik)
 
 </div>
+
+<img width="1920" height="5895" alt="CineTube" src="https://github.com/user-attachments/assets/a1cb1e47-186b-4e78-8f0f-85a15bd9488f" />
+
