@@ -27,6 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Popcorn, Eye, EyeOff } from "lucide-react";
+import { signIn } from "@/lib/auth-client";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -60,29 +61,15 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     setError("");
-    
+
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const result = await signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to login. Please check your credentials.");
-      }
-
-      // Store tokens in localStorage or cookies as needed
-      if (data.data?.accessToken) {
-        localStorage.setItem("accessToken", data.data.accessToken);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to login. Please check your credentials.");
       }
 
       router.push("/");
