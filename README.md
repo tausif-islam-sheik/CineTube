@@ -2,7 +2,7 @@
 
 # 🎬 CineTube
 
-**A modern, full-stack movie streaming and discovery platform**
+**A modern, Full-Stack movie streaming and discovery platform**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -92,4 +92,17 @@ Made with ❤️ by [Tausif Islam Sheik](https://github.com/tausif-islam-sheik)
 </div>
 
 <img width="1920" height="5895" alt="CineTube" src="https://github.com/user-attachments/assets/a1cb1e47-186b-4e78-8f0f-85a15bd9488f" />
+
+<img width="1920" height="1968" alt="CineTube-Cinematic-Streaming-04-25-2026_06_46_PM" src="https://github.com/user-attachments/assets/2e537d42-25e5-4220-9e3d-790c18c9b9fc" />
+
+<img width="1920" height="2068" alt="CineTube-Cinematic-Streaming-04-25-2026_06_47_PM" src="https://github.com/user-attachments/assets/07b619ef-861f-4bbd-b382-44514d3db5e0" />
+
+<img width="1920" height="931" alt="CineTube-Cinematic-Streaming-04-25-2026_06_48_PM" src="https://github.com/user-attachments/assets/9bc3f139-c552-4348-9020-00097b38149e" />
+
+<img width="1920" height="922" alt="CineTube-Cinematic-Streaming-04-25-m" src="https://github.com/user-attachments/assets/0963d5de-c220-4cc8-9a23-0418cbe53738" />
+
+<img width="1920" height="1126" alt="CineTube-Cinematic-Streaming-04-25-2026_06_49_PM" src="https://github.com/user-attachments/assets/97fe6f6d-067b-49d1-b9c8-dde2ed46ed0e" />
+
+
+
 
