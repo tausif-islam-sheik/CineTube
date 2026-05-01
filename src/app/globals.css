@@ -55,7 +55,7 @@
   --card-foreground: oklch(0.1 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.45 0.18 28); /* Rich Maroon */
+  --primary: #E60012; /* Bright Red */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.2 0 0);
@@ -66,7 +66,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
-  --ring: oklch(0.45 0.18 28);
+  --ring: #E60012;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -75,12 +75,12 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: #E60012;
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: #E60012;
 }
 
 .dark {
@@ -90,7 +90,7 @@
   --card-foreground: #e6edf3;
   --popover: #161b22;
   --popover-foreground: #e6edf3;
-  --primary: oklch(0.45 0.18 28); /* Same deep Maroon as light mode */
+  --primary: #E60012; /* Same bright Red as light mode */
   --primary-foreground: #ffffff;
   --secondary: #21262d; /* GitHub dark secondary */
   --secondary-foreground: #e6edf3;
@@ -101,15 +101,15 @@
   --destructive: #f85149;
   --border: #30363d; /* GitHub dark border */
   --input: #21262d;
-  --ring: oklch(0.45 0.18 28);
+  --ring: #E60012;
   --sidebar: #0d1117;
   --sidebar-foreground: #e6edf3;
-  --sidebar-primary: oklch(0.45 0.18 28);
+  --sidebar-primary: #E60012;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #21262d;
   --sidebar-accent-foreground: #e6edf3;
   --sidebar-border: #30363d;
-  --sidebar-ring: oklch(0.45 0.18 28);
+  --sidebar-ring: #E60012;
 }
 
 @layer base {

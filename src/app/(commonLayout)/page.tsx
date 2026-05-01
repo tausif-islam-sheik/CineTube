@@ -92,20 +92,36 @@ function MovieCard({
         }
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-80 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" />
         
         {/* New Release Badge - Only on first card */}
         {isNew && (
-          <div className="absolute top-2 left-2 bg-[#e50914] px-2 py-1 rounded text-white text-[10px] font-bold uppercase tracking-wide">
+          <div className="absolute top-2 left-2 bg-[#E60012] px-2 py-1 rounded text-white text-[10px] font-bold uppercase tracking-wide z-10">
             New Release
           </div>
         )}
 
-        {/* Hover Info */}
-        <div className="absolute bottom-0 inset-x-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-          <p className="text-white text-sm font-bold leading-tight line-clamp-1">
+        {/* Play Button - Center on hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out will-change-transform">
+          <div className="w-10 h-10 rounded-full bg-[#E60012] flex items-center justify-center shadow-lg scale-75 group-hover:scale-100 transition-transform duration-700 ease-out">
+            <Play className="w-4 h-4 text-white fill-current ml-0.5" />
+          </div>
+        </div>
+
+        {/* Hover Info - Bottom */}
+        <div className="absolute bottom-0 inset-x-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out translate-y-2 group-hover:translate-y-0">
+          <p className="text-white text-sm font-bold leading-tight line-clamp-1 mb-1">
             {movie.title}
           </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+              <span className="text-yellow-400 text-xs font-bold">
+                {movie.averageRating?.toFixed(1) ?? "0.0"}
+              </span>
+            </div>
+            <span className="text-white/80 text-xs font-medium">{movie.releaseYear}</span>
+          </div>
         </div>
       </div>
     </Link>
@@ -224,6 +240,43 @@ function MovieRow({
 }
 
 /* ─────────────────────────────────────────────
+   Movie Row Skeleton Loader
+   ───────────────────────────────────────────── */
+function MovieRowSkeleton({ 
+  title, 
+  variant = "portrait" 
+}: { 
+  title: string; 
+  variant?: "portrait" | "landscape";
+}) {
+  const cardCount = 6;
+  const cardWidth = variant === "landscape" ? "w-48 sm:w-56 md:w-72" : "w-32 sm:w-40 md:w-48";
+  const cardAspect = variant === "landscape" ? "aspect-[16/9]" : "aspect-[2/3]";
+
+  return (
+    <section className="space-y-4">
+      <div className="px-4 md:px-12">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-4 w-56 mt-2" />
+      </div>
+      
+      <div className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-12 pb-2 scrollbar-hide">
+        {Array.from({ length: cardCount }).map((_, i) => (
+          <Skeleton 
+            key={i} 
+            className={cn(
+              "flex-shrink-0 rounded-lg",
+              cardWidth,
+              cardAspect
+            )} 
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────
    Hero Spotlight Skeleton Loader
    ───────────────────────────────────────────── */
 function HeroSpotlightSkeleton() {
@@ -240,7 +293,7 @@ function HeroSpotlightSkeleton() {
 
       {/* Skeleton Content */}
       <div className="absolute inset-0 z-10">
-        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:pb-32 md:px-12 lg:px-16">
+        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-38 md:pb-44 md:px-12 lg:px-12">
           <div className="flex items-end justify-between gap-6">
             <div className="max-w-3xl space-y-6">
               {/* Title Skeleton */}
@@ -380,7 +433,7 @@ function HeroSpotlight({ movie, spotlightMovies, onMovieSelect }: { movie: Movie
               <div className="flex items-center gap-3">
                 <Button 
                   asChild 
-                  className="h-12 md:h-12 rounded-lg bg-[#e50914] hover:bg-[#f40612] px-8 font-semibold text-base uppercase tracking-wide border-0"
+                  className="h-12 md:h-12 rounded-lg bg-[#E60012] hover:bg-[#ff1a2e] px-8 font-semibold text-base uppercase tracking-wide border-0"
                 >
                   <Link href={`/movie/${movie.id}`}>
                     <Play className="mr-2 h-5 w-5 fill-current" />
@@ -519,7 +572,11 @@ export default function HomePage() {
       {/* ── CONTENT SECTIONS ── */}
       <div className="space-y-10">
         {/* Newly Added - Overlaps banner */}
-        {newlyAdded.length > 0 && (
+        {isLoadingNewlyAdded ? (
+          <div className="relative z-20 -mt-32">
+            <MovieRowSkeleton title="Newly Added" variant="portrait" />
+          </div>
+        ) : newlyAdded.length > 0 && (
           <div className="relative z-20 -mt-32">
             <MovieRow
               title="Newly Added"
@@ -532,7 +589,9 @@ export default function HomePage() {
         )}
 
         {/* Top Rated This Week */}
-        {topRated.length > 0 && (
+        {isLoadingTopRated ? (
+          <MovieRowSkeleton title="Top Rated This Week" variant="landscape" />
+        ) : topRated.length > 0 && (
           <MovieRow
             title="Top Rated This Week"
             icon={<Award className="w-5 h-5 text-yellow-500" />}
