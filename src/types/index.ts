@@ -81,6 +81,7 @@ export interface Movie {
     price: number | null;
     youtubeLink: string | null;
     posterUrl: string | null;
+    backdropUrl: string | null;
     trailerUrl: string | null;
     duration: number | null;
     averageRating: number | null;

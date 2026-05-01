@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState, useEffect } from "react";
 import apiClient from "@/lib/axios";
 import { Movie } from "@/types";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import {
   Info,
   Star,
   ChevronRight,
+  ChevronLeft,
   Flame,
   Sparkles,
   Shield,
@@ -41,108 +43,181 @@ function GradientOrb({ className }: { className?: string }) {
 
 /* ─────────────────────────────────────────────
    Movie poster card
- ───────────────────────────────────────────── */
-function MovieCard({ movie }: { movie: Movie }) {
+   ───────────────────────────────────────────── */
+function MovieCard({ 
+  movie, 
+  isNew, 
+  variant = "portrait" 
+}: { 
+  movie: Movie; 
+  isNew?: boolean;
+  variant?: "portrait" | "landscape";
+}) {
+  const isLandscape = variant === "landscape";
+  
   return (
-    <Link href={`/movie/${movie.id}`}>
-      <div className="group relative aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer shrink-0 w-40 md:w-56 bg-muted/20 border border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(var(--primary),0.2)]">
-        {/* Poster */}
-        {movie.posterUrl ? (
-          <img
-            src={movie.posterUrl}
-            alt={movie.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center font-bold text-muted-foreground p-6 text-center text-sm bg-gradient-to-br from-slate-900 to-slate-800">
-            {movie.title}
+    <Link href={`/movie/${movie.id}`} className="block">
+      <div 
+        className={cn(
+          "group relative rounded-lg overflow-hidden cursor-pointer shrink-0 bg-muted/20 transition-all duration-300 hover:scale-105 hover:z-10",
+          isLandscape 
+            ? "aspect-[16/9] w-48 sm:w-56 md:w-72" 
+            : "aspect-[2/3] w-32 sm:w-40 md:w-48"
+        )}
+      >
+        {/* Image */}
+        {isLandscape 
+          ? (movie.backdropUrl || movie.posterUrl) ? (
+            <img
+              src={movie.backdropUrl || movie.posterUrl || undefined}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center font-bold text-muted-foreground p-4 text-center text-sm bg-gradient-to-br from-slate-900 to-slate-800">
+              {movie.title}
+            </div>
+          )
+          : movie.posterUrl ? (
+            <img
+              src={movie.posterUrl || undefined}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center font-bold text-muted-foreground p-4 text-center text-sm bg-gradient-to-br from-slate-900 to-slate-800">
+              {movie.title}
+            </div>
+          )
+        }
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-80 transition-opacity duration-300" />
+        
+        {/* New Release Badge - Only on first card */}
+        {isNew && (
+          <div className="absolute top-2 left-2 bg-[#e50914] px-2 py-1 rounded text-white text-[10px] font-bold uppercase tracking-wide">
+            New Release
           </div>
         )}
 
-        {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
-        
-        {/* Play Icon Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-            <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-500 shadow-2xl">
-                <Play className="w-6 h-6 text-white fill-current translate-x-0.5" />
-            </div>
-        </div>
-
-        {/* Info Area */}
-        <div className="absolute bottom-0 inset-x-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-          <p className="text-white text-sm md:text-base font-black leading-tight line-clamp-1 mb-2 tracking-tight">
+        {/* Hover Info */}
+        <div className="absolute bottom-0 inset-x-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <p className="text-white text-sm font-bold leading-tight line-clamp-1">
             {movie.title}
           </p>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-400/10 rounded-md">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-yellow-400 text-[10px] md:text-xs font-black">
-                  {movie.averageRating?.toFixed(1) ?? "N/A"}
-                </span>
-            </div>
-            <span className="text-white/60 text-[10px] md:text-xs font-bold ml-auto">{movie.releaseYear}</span>
-          </div>
         </div>
-
-        {/* Premium Badge */}
-        {movie.pricing === "PREMIUM" && (
-          <div className="absolute top-3 left-3 bg-primary px-2 py-1 rounded-lg shadow-xl">
-             <span className="text-white text-[9px] font-black tracking-wider uppercase flex items-center gap-1">
-                <Zap className="w-3 h-3 fill-current" />
-                Premium
-             </span>
-          </div>
-        )}
       </div>
     </Link>
   );
 }
 
 /* ─────────────────────────────────────────────
-   Movie Row
- ───────────────────────────────────────────── */
+   Movie Row - Netflix Style with Navigation
+   ───────────────────────────────────────────── */
 function MovieRow({
   title,
   icon,
   movies,
   subtitle,
+  isFirstNew = false,
+  variant = "portrait",
 }: {
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   movies: Movie[];
   subtitle?: string;
+  isFirstNew?: boolean;
+  variant?: "portrait" | "landscape";
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      return () => el.removeEventListener("scroll", checkScroll);
+    }
+  }, []);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = variant === "landscape" ? 400 : 300;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <section className="space-y-6">
-      <div className="flex items-end justify-between px-4 md:px-8">
-        <div className="space-y-1">
-          <h2 className="flex items-center gap-2.5 text-2xl font-black tracking-tight">
-            {icon}
+    <section className="space-y-4">
+      <div className="px-4 md:px-12">
+        <div className="flex items-center gap-3">
+          {icon && <span className="text-foreground/80">{icon}</span>}
+          <h2 className="text-lg md:text-2xl font-bold tracking-wide text-foreground">
             {title}
           </h2>
-          {subtitle && <p className="text-muted-foreground text-sm">{subtitle}</p>}
         </div>
-        <Link
-          href="/discover"
-          className="group flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
-        >
-          Explore All
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+        {subtitle && (
+          <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+        )}
       </div>
       
       <div className="relative group">
-        <div className="flex gap-4 md:gap-6 overflow-x-auto px-4 md:px-8 pb-4 scrollbar-hide snap-x">
-          {movies.map((m) => (
-            <div key={m.id} className="snap-start">
-              <MovieCard movie={m} />
+        {/* Left Arrow */}
+        <button
+          onClick={() => scroll("left")}
+          className={cn(
+            "absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300",
+            canScrollLeft 
+              ? "opacity-100 pointer-events-auto" 
+              : "opacity-0 pointer-events-none"
+          )}
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          onClick={() => scroll("right")}
+          className={cn(
+            "absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300",
+            canScrollRight 
+              ? "opacity-100 pointer-events-auto" 
+              : "opacity-0 pointer-events-none"
+          )}
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
+
+        <div 
+          ref={scrollRef}
+          className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-12 pb-2 scrollbar-hide scroll-smooth"
+        >
+          {movies.map((m, idx) => (
+            <div key={m.id} className="flex-shrink-0">
+              <MovieCard 
+                movie={m} 
+                isNew={isFirstNew && idx === 0}
+                variant={variant}
+              />
             </div>
           ))}
         </div>
-        {/* Shadow fades for scroll indication */}
-        <div className="absolute top-0 right-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent pointer-events-none" />
-        <div className="absolute top-0 left-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent pointer-events-none" />
       </div>
     </section>
   );
@@ -159,49 +234,42 @@ function HeroSpotlightSkeleton() {
         <Skeleton className="w-full h-full" />
       </div>
 
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.8)_100%)]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent lg:opacity-80" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+      {/* Dark Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
       {/* Skeleton Content */}
       <div className="absolute inset-0 z-10">
-        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-8 md:px-12 lg:px-20 md:pb-10">
+        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-24 md:pb-32 md:px-12 lg:px-16">
           <div className="flex items-end justify-between gap-6">
-            <div className="max-w-2xl space-y-8">
-              {/* Spotlight Label Skeleton */}
-              <Skeleton className="h-4 w-32 bg-white/20" />
-
+            <div className="max-w-3xl space-y-6">
               {/* Title Skeleton */}
-              <Skeleton className="h-16 md:h-24 w-3/4 bg-white/20" />
+              <Skeleton className="h-20 md:h-32 w-3/4 bg-white/20" />
 
               {/* Info Badges Skeleton */}
-              <div className="flex flex-wrap items-center gap-2">
-                <Skeleton className="h-6 w-16 rounded-full bg-white/10" />
-                <Skeleton className="h-6 w-14 rounded-full bg-white/10" />
-                <Skeleton className="h-6 w-12 rounded-full bg-white/10" />
-                <Skeleton className="h-6 w-20 rounded-full bg-white/10" />
-              </div>
-
-              {/* Description Skeleton */}
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full max-w-xl bg-white/10" />
-                <Skeleton className="h-4 w-2/3 max-w-xl bg-white/10" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-20 bg-white/10" />
+                <Skeleton className="h-5 w-3 bg-white/10" />
+                <Skeleton className="h-5 w-24 bg-white/10" />
+                <Skeleton className="h-5 w-3 bg-white/10" />
+                <Skeleton className="h-5 w-10 bg-white/10" />
+                <Skeleton className="h-5 w-3 bg-white/10" />
+                <Skeleton className="h-5 w-14 bg-white/10" />
               </div>
 
               {/* Buttons Skeleton */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Skeleton className="h-14 w-32 rounded-xl bg-white/20" />
-                <Skeleton className="h-14 w-14 rounded-xl bg-white/10" />
-                <Skeleton className="h-14 w-14 rounded-xl bg-white/10" />
+              <div className="flex items-center gap-3 pt-2">
+                <Skeleton className="h-12 w-32 rounded-lg bg-white/20" />
+                <Skeleton className="h-12 w-12 rounded-lg bg-white/10" />
+                <Skeleton className="h-12 w-12 rounded-lg bg-white/10" />
               </div>
             </div>
 
             {/* Thumbnail Strip Skeleton */}
-            <div className="hidden md:flex flex-col items-end gap-3">
-              <div className="flex items-center gap-2 rounded-xl bg-black/35 p-2">
+            <div className="hidden lg:flex flex-col items-end gap-3 pb-2">
+              <div className="flex items-center gap-2">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-20 rounded-md bg-white/10" />
+                  <Skeleton key={i} className="h-16 w-28 rounded-md bg-white/10" />
                 ))}
               </div>
             </div>
@@ -215,7 +283,7 @@ function HeroSpotlightSkeleton() {
 /* ─────────────────────────────────────────────
    Hero Spotlight
    ───────────────────────────────────────────── */
-function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovies: Movie[] }) {
+function HeroSpotlight({ movie, spotlightMovies, onMovieSelect }: { movie: Movie; spotlightMovies: Movie[]; onMovieSelect?: (movie: Movie) => void }) {
   type WatchlistEntry = { id: string; movieId: string };
 
   const { data: session } = useSession();
@@ -264,51 +332,58 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Cinematic Backdrop */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        {movie.posterUrl ? (
+        {movie.backdropUrl || movie.posterUrl ? (
           <img
-            src={movie.posterUrl}
+            src={movie.backdropUrl || movie.posterUrl}
             alt={movie.title}
-            className="w-full h-full object-cover animate-slow-zoom opacity-70 contrast-[1.1] brightness-[0.8]"
+            className="w-full h-full object-cover opacity-90 contrast-[1.05] brightness-[0.75]"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-950 via-primary/10 to-slate-950" />
         )}
       </div>
 
-      {/* Sophisticated Lighting Overlays */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.8)_100%)]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent lg:opacity-80" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+      {/* Dark Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
       {/* Content Container */}
       <div className="absolute inset-0 z-10">
-        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-8 md:px-12 lg:px-20 md:pb-10">
+        <div className="container mx-auto flex h-full flex-col justify-end px-4 pb-38 md:pb-44 md:px-12 lg:px-12">
           <div className="flex items-end justify-between gap-6">
-            <div className="max-w-2xl space-y-8 animate-in slide-in-from-left-10 fade-in duration-700">
-              <p className="text-[14px] font-semibold tracking-[0.22em] text-white/85 uppercase">
-                CineTube Spotlight
-              </p>
-              <h1 className="text-6xl md:text-8xl font-black tracking-tight text-white leading-[0.95]">
-                {movie.title}
+            {/* Left Content */}
+            <div className="max-w-3xl animate-in slide-in-from-left-10 fade-in duration-700">
+              {/* Title - Large Grunge Style */}
+              <h1 
+                className="text-5xl md:text-6xl lg:text-[5rem] font-black tracking-tight text-white leading-[0.85] mb-6"
+                style={{ 
+                  fontFamily: "system-ui, -apple-system, sans-serif",
+                  letterSpacing: "-0.02em",
+                  textShadow: "0 4px 30px rgba(0,0,0,0.5)"
+                }}
+              >
+                {movie.title.toUpperCase()}
               </h1>
-              <div className="flex flex-wrap items-center gap-2 text-xs
-              md:text-md text-white/85">
-                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.genre?.[0] || "Drama"}</span>
-                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.releaseYear}</span>
-                <span className="rounded-full bg-white/10 px-2.5 py-1">{movie.duration ? `${movie.duration}m` : "N/A"}</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  {movie.averageRating?.toFixed(1) ?? "N/A"}
-                </span>
-              </div>
-              <p className="max-w-xl text-md md:text-lg leading-relaxed text-white/75 line-clamp-2">
-                {movie.description}
-              </p>
 
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <Button asChild className="h-12 md:h-14 rounded-lg bg-primary px-4 md:px-8 font-semibold text-lg md:text-xl uppercase tracking-wide">
+              {/* Metadata Row */}
+              <div className="flex items-center gap-2 text-sm text-white/80 mb-8">
+                <span className="text-white/90">{movie.genre?.[0] || "Drama"}</span>
+                <span className="text-white/50">•</span>
+                <span className="text-white/90">{movie.genre?.[1] || "Thriller"}</span>
+                <span className="text-white/50">•</span>
+                <span className="px-1.5 py-0.5 text-xs border border-white/30 rounded">13+</span>
+                <span className="text-white/50">•</span>
+                <span className="text-white/90">{movie.releaseYear || "2026"}</span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <Button 
+                  asChild 
+                  className="h-12 md:h-12 rounded-lg bg-[#e50914] hover:bg-[#f40612] px-8 font-semibold text-base uppercase tracking-wide border-0"
+                >
                   <Link href={`/movie/${movie.id}`}>
-                    <Play className="mr-1 h-6 w-6 fill-current" />
+                    <Play className="mr-2 h-5 w-5 fill-current" />
                     Play
                   </Link>
                 </Button>
@@ -317,40 +392,50 @@ function HeroSpotlight({ movie, spotlightMovies }: { movie: Movie; spotlightMovi
                   disabled={toggleWatchlistMutation.isPending}
                   aria-label="Toggle watchlist"
                   className={cn(
-                    "inline-flex h-12 md:h-14 w-12 md:w-14 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur transition-colors hover:bg-white/30",
-                    isWatchlisted && "bg-primary/80 hover:bg-primary"
+                    "inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur transition-colors hover:bg-white/30",
+                    isWatchlisted && "bg-white/40"
                   )}
                 >
-                  <span className="text-3xl leading-none">+</span>
+                  <span className="text-2xl leading-none">+</span>
                 </button>
                 <Link
                   href={`/movie/${movie.id}`}
-                  className="inline-flex h-12 md:h-14 w-12 md:w-14 items-center justify-center rounded-lg bg-white/20 text-sm text-white backdrop-blur hover:bg-white/30 transition-colors"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur hover:bg-white/30 transition-colors"
                 >
-                  <Info className="h-4 w-4" />
+                  <Info className="h-5 w-5" />
                 </Link>
               </div>
             </div>
 
-            <div className="hidden md:flex flex-col items-end gap-3">
-              <div className="flex items-center gap-2 rounded-xl bg-black/35 p-2 backdrop-blur">
+            {/* Right - Thumbnail Strip */}
+            <div className="hidden lg:flex flex-col items-end gap-3 pb-2">
+              <div className="flex items-center gap-2">
                 {spotlightMovies.slice(0, 6).map((spot) => (
-                  <Link
+                  <button
                     key={spot.id}
-                    href={`/movie/${spot.id}`}
+                    onClick={() => onMovieSelect?.(spot)}
                     className={cn(
-                      "relative h-12 w-20 overflow-hidden rounded-md border border-transparent transition-all",
-                      spot.id === movie.id && "border-white shadow-[0_0_0_1px_rgba(255,255,255,0.7)]"
+                      "relative h-16 w-28 overflow-hidden rounded-md border-2 transition-all duration-300 hover:scale-105",
+                      spot.id === movie.id 
+                        ? "border-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
+                        : "border-white/20 hover:border-white/50"
                     )}
                   >
-                    {spot.posterUrl ? (
-                      <img src={spot.posterUrl} alt={spot.title} className="h-full w-full object-cover" />
+                    {spot.backdropUrl || spot.posterUrl ? (
+                      <img 
+                        src={spot.backdropUrl || spot.posterUrl} 
+                        alt={spot.title} 
+                        className="h-full w-full object-cover" 
+                      />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-zinc-800 text-[10px] text-zinc-300">
                         {spot.title}
                       </div>
                     )}
-                  </Link>
+                    {spot.id === movie.id && (
+                      <div className="absolute inset-0 bg-white/10" />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
@@ -399,6 +484,16 @@ export default function HomePage() {
   const topRated = topRatedResp?.data ?? [];
   const editorPicks = editorPicksResp?.data ?? [];
   const heroMovie = topRated[0] || newlyAdded[0];
+  
+  // State for selected hero movie (for thumbnail click feature)
+  const [selectedHeroMovie, setSelectedHeroMovie] = useState<Movie | null>(heroMovie || null);
+  
+  // Update selected movie when data loads
+  useEffect(() => {
+    if (heroMovie && !selectedHeroMovie) {
+      setSelectedHeroMovie(heroMovie);
+    }
+  }, [heroMovie, selectedHeroMovie]);
 
   // Deduplicate spotlight movies (prevent hero movie appearing twice)
   const allSpotlightMovies = [heroMovie, ...topRated, ...newlyAdded].filter(Boolean);
@@ -411,49 +506,44 @@ export default function HomePage() {
       {/* ── HERO ── */}
       {isLoadingHero ? (
         <HeroSpotlightSkeleton />
-      ) : heroMovie ? (
+      ) : selectedHeroMovie ? (
         <HeroSpotlight
-          movie={heroMovie}
+          movie={selectedHeroMovie}
           spotlightMovies={uniqueSpotlightMovies}
+          onMovieSelect={setSelectedHeroMovie}
         />
       ) : null}
 
 
 
       {/* ── CONTENT SECTIONS ── */}
-      <div className="py-20 space-y-28">
-        {/* NEWLY ADDED */}
+      <div className="space-y-10">
+        {/* Newly Added - Overlaps banner */}
         {newlyAdded.length > 0 && (
-          <MovieRow
-            title="Newly Added"
-            subtitle="Fresh arrivals for your watchlist"
-            icon={<Sparkles className="w-6 h-6 text-primary" />}
-            movies={newlyAdded}
-          />
+          <div className="relative z-20 -mt-32">
+            <MovieRow
+              title="Newly Added"
+              icon={<Sparkles className="w-5 h-5 text-primary" />}
+              subtitle="Fresh arrivals for your watchlist"
+              movies={newlyAdded}
+              isFirstNew={true}
+            />
+          </div>
         )}
 
-        {/* TOP RATED */}
+        {/* Top Rated This Week */}
         {topRated.length > 0 && (
           <MovieRow
             title="Top Rated This Week"
+            icon={<Award className="w-5 h-5 text-yellow-500" />}
             subtitle="The highest-rated cinematic masterpieces"
-            icon={<Award className="w-6 h-6 text-yellow-500" />}
             movies={topRated}
-          />
-        )}
-
-        {/* EDITOR'S PICKS */}
-        {editorPicks.length > 0 && (
-          <MovieRow
-            title="Editor’s Picks"
-            subtitle="Hand-picked recommendations from our team"
-            icon={<Flame className="w-6 h-6 text-orange-500" />}
-            movies={editorPicks}
+            variant="landscape"
           />
         )}
 
         {/* WHY CINETUBE */}
-        <section className="container mx-auto px-4 md:px-8">
+        <section className="container mx-auto px-4 md:px-8 pt-10">
           <div className="rounded-[2rem] border border-border bg-card/40 p-6 md:p-10">
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="space-y-2">
@@ -463,7 +553,7 @@ export default function HomePage() {
                   Discover trending titles, follow trusted reviews, and keep your watchlist in sync across devices.
                 </p>
               </div>
-              <Link href="/discover" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">
+              <Link href="/discover" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors pb-18">
                 Explore catalog →
               </Link>
             </div>

@@ -95,7 +95,7 @@ export function Navbar() {
         isOverlay ? "absolute inset-x-0" : "sticky",
         isOverlay
           ? "bg-transparent border-b border-transparent"
-          : "border-b border-border bg-background/90 backdrop-blur-xl"
+          : "sticky border border-white/20 bg-background/60 backdrop-blur-xl shadow-lg"
       )}
     >
       <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8">
@@ -194,8 +194,8 @@ export function Navbar() {
                 className={cn(
                   "hidden md:flex h-8 gap-1.5 px-3",
                   isOverlay
-                    ? "text-yellow-400 hover:text-yellow-400 hover:bg-yellow-400/10 border border-yellow-400/40"
-                    : "text-primary hover:text-primary hover:bg-primary/10 border border-primary/40"
+                    ? "text-yellow-400 hover:text-yellow-400 hover:bg-yellow-600 border border-yellow-600"
+                    : "text-yellow-400 hover:text-yellow-400 hover:bg-yellow-600 border border-yellow-400"
                 )}
               >
                 <Shield className="w-3.5 h-3.5" />
