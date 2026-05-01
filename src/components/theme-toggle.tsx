@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 function useHasMounted() {
   const [mounted, setMounted] = useState(false);
@@ -13,7 +14,11 @@ function useHasMounted() {
   return mounted;
 }
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  isOverlay?: boolean;
+}
+
+export function ThemeToggle({ isOverlay }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
   const mounted = useHasMounted();
 
@@ -23,7 +28,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" className="h-9 w-9">
+      <Button variant="ghost" size="icon" className={cn("h-9 w-9", isOverlay ? "text-white" : "text-foreground")}>
         <Sun className="h-4 w-4" />
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -34,7 +39,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      className="h-9 w-9"
+      className={cn("h-9 w-9", isOverlay ? "text-white hover:bg-white/20" : "text-foreground")}
       onClick={toggleTheme}
     >
       <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

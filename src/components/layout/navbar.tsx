@@ -191,7 +191,12 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="hidden md:flex h-8 gap-1.5 text-yellow-400 hover:text-yellow-400 hover:bg-yellow-400/10 border border-yellow-400/25 px-3"
+                className={cn(
+                  "hidden md:flex h-8 gap-1.5 px-3",
+                  isOverlay
+                    ? "text-yellow-400 hover:text-yellow-400 hover:bg-yellow-400/10 border border-yellow-400/40"
+                    : "text-primary hover:text-primary hover:bg-primary/10 border border-primary/40"
+                )}
               >
                 <Shield className="w-3.5 h-3.5" />
                 Admin
@@ -200,7 +205,9 @@ export function Navbar() {
           )}
 
           {/* Theme Toggle */}
-          {!searchOpen && <ThemeToggle />}
+          {!searchOpen && (
+            <ThemeToggle isOverlay={isOverlay} />
+          )}
 
           {/* Auth section */}
           {!searchOpen && (
@@ -210,9 +217,9 @@ export function Navbar() {
               ) : session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 border border-border rounded-full pl-3 pr-1 py-1 hover:border-muted-foreground transition-colors group">
+                    <button className={cn("flex items-center gap-2 border rounded-full pl-3 pr-1 py-1 transition-colors group", isOverlay ? "border-white/50 hover:border-white/70" : "border-foreground/50 hover:border-foreground/70")}>
                       <User className={cn("w-3.5 h-3.5 transition-colors", isOverlay ? "text-white/80 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
-                      <span className={cn("text-sm transition-colors max-w-[90px] truncate hidden sm:block", isOverlay ? "text-white/80 group-hover:text-white" : "text-foreground/80 group-hover:text-foreground")}>
+                      <span className={cn("text-sm transition-colors max-w-22.5 truncate hidden sm:block", isOverlay ? "text-white/80 group-hover:text-white" : "text-foreground/80 group-hover:text-foreground")}>
                         {session.user.name?.split(" ")[0]}
                       </span>
                       <Avatar className="h-6 w-6">

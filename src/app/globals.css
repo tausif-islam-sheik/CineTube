@@ -90,7 +90,7 @@
   --card-foreground: #e6edf3;
   --popover: #161b22;
   --popover-foreground: #e6edf3;
-  --primary: #ff6b6b; /* Coral red for contrast */
+  --primary: oklch(0.45 0.18 28); /* Same deep Maroon as light mode */
   --primary-foreground: #ffffff;
   --secondary: #21262d; /* GitHub dark secondary */
   --secondary-foreground: #e6edf3;
@@ -101,15 +101,15 @@
   --destructive: #f85149;
   --border: #30363d; /* GitHub dark border */
   --input: #21262d;
-  --ring: #ff6b6b;
+  --ring: oklch(0.45 0.18 28);
   --sidebar: #0d1117;
   --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #ff6b6b;
+  --sidebar-primary: oklch(0.45 0.18 28);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #21262d;
   --sidebar-accent-foreground: #e6edf3;
   --sidebar-border: #30363d;
-  --sidebar-ring: #ff6b6b;
+  --sidebar-ring: oklch(0.45 0.18 28);
 }
 
 @layer base {
