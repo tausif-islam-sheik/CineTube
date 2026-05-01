@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -196,6 +198,9 @@ export function Navbar() {
               </Button>
             </Link>
           )}
+
+          {/* Theme Toggle */}
+          {!searchOpen && <ThemeToggle />}
 
           {/* Auth section */}
           {!searchOpen && (

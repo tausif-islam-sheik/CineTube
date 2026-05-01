@@ -84,32 +84,32 @@
 }
 
 .dark {
-  --background: oklch(0.1 0.005 28); /* Deep Dark Maroon-tinted Slate */
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.14 0.005 28);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.14 0.005 28);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.45 0.18 28); /* Premium Maroon */
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.18 0.01 28);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.18 0.01 28);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.18 0.01 28);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.18 0.01 28);
-  --input: oklch(0.18 0.01 28);
-  --ring: oklch(0.45 0.18 28);
-  --sidebar: oklch(0.1 0.005 28);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.45 0.18 28);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.18 0.01 28);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.18 0.01 28);
-  --sidebar-ring: oklch(0.45 0.18 28);
+  --background: #0d1117; /* GitHub dark bg */
+  --foreground: #e6edf3; /* GitHub dark text */
+  --card: #161b22; /* GitHub dark card */
+  --card-foreground: #e6edf3;
+  --popover: #161b22;
+  --popover-foreground: #e6edf3;
+  --primary: #ff6b6b; /* Coral red for contrast */
+  --primary-foreground: #ffffff;
+  --secondary: #21262d; /* GitHub dark secondary */
+  --secondary-foreground: #e6edf3;
+  --muted: #21262d;
+  --muted-foreground: #8b949e; /* GitHub dark muted */
+  --accent: #30363d; /* GitHub dark accent */
+  --accent-foreground: #e6edf3;
+  --destructive: #f85149;
+  --border: #30363d; /* GitHub dark border */
+  --input: #21262d;
+  --ring: #ff6b6b;
+  --sidebar: #0d1117;
+  --sidebar-foreground: #e6edf3;
+  --sidebar-primary: #ff6b6b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #21262d;
+  --sidebar-accent-foreground: #e6edf3;
+  --sidebar-border: #30363d;
+  --sidebar-ring: #ff6b6b;
 }
 
 @layer base {
