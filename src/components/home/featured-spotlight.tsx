@@ -62,7 +62,7 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
       </div>
 
       <div 
-        className="relative rounded-3xl overflow-hidden min-h-[500px] md:min-h-[600px]"
+        className="relative rounded-3xl overflow-hidden min-h-[400px] md:min-h-[600px]"
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
       >
@@ -84,9 +84,9 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col md:flex-row items-end md:items-center p-6 md:p-12 lg:p-16 min-h-[500px] md:min-h-[600px]">
+        <div className="relative z-10 h-full flex flex-col md:flex-row items-end md:items-center p-4 sm:p-6 md:p-12 lg:p-16 lg:px-28 min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
           {/* Left: Info */}
-          <div className="flex-1 space-y-6 max-w-2xl">
+          <div className="flex-1 space-y-4 md:space-y-6 max-w-2xl w-full">
             {/* Badges */}
             <div className="flex flex-wrap items-center gap-3">
               <Badge className="bg-primary text-white border-0 px-3 py-1 text-xs font-bold uppercase tracking-wider">
@@ -101,12 +101,12 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
             </div>
 
             {/* Title */}
-            <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+            <h3 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-tight tracking-tight mt-10 md:mt-6">
               {currentMovie.title}
             </h3>
 
             {/* Meta Row */}
-            <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
+            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-white/80 text-xs md:text-sm">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 <span className="font-bold text-white">{currentMovie.averageRating?.toFixed(1) ?? "N/A"}</span>
@@ -125,28 +125,29 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
             </div>
 
             {/* Description */}
-            <p className="text-white/70 text-base md:text-lg line-clamp-3 max-w-xl">
+            <p className="text-white/70 text-sm md:text-base lg:text-lg line-clamp-2 md:line-clamp-3 max-w-xl">
               {currentMovie.plot || "An epic cinematic journey that pushes the boundaries of storytelling. Experience breathtaking visuals and a gripping narrative that will keep you on the edge of your seat."}
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-6">
               <Link href={`/movie/${currentMovie.id}`}>
                 <Button 
-                  size="lg" 
-                  className="bg-primary hover:bg-primary/90 text-white rounded-xl px-8 h-14 text-base font-bold"
+                  size="default"
+                  className="bg-primary hover:bg-primary/90 text-white rounded-lg md:rounded-xl px-5 md:px-8 h-11 md:h-14 text-sm md:text-base font-bold"
                 >
-                  <Play className="w-5 h-5 mr-2 fill-current" />
+                  <Play className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2 fill-current" />
                   Watch Now
                 </Button>
               </Link>
               <Button 
                 variant="outline" 
-                size="lg" 
-                className="border-white/30 text-white hover:bg-white/10 rounded-xl px-6 h-14 text-base font-bold bg-transparent"
+                size="default"
+                className="border-white/30 text-white hover:bg-white/10 rounded-lg md:rounded-xl px-4 md:px-6 h-11 md:h-14 text-sm md:text-base font-bold bg-transparent"
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Add to Watchlist
+                <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" />
+                <span className="hidden sm:inline">Add to Watchlist</span>
+                <span className="sm:hidden">Watchlist</span>
               </Button>
             </div>
           </div>

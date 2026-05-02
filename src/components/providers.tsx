@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { SmoothScrollProvider } from "@/components/providers/smooth-scroll";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -27,7 +28,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        {children}
+        <SmoothScrollProvider>
+          {children}
+        </SmoothScrollProvider>
         <Toaster position="bottom-right" richColors closeButton />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

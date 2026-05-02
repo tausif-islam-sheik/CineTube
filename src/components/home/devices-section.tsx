@@ -44,39 +44,38 @@ const DEVICES = [
 
 interface DeviceCardProps {
   device: typeof DEVICES[0];
-  index: number;
 }
 
-function DeviceCard({ device, index }: DeviceCardProps) {
+function DeviceCard({ device }: DeviceCardProps) {
   const Icon = device.icon;
 
   return (
     <div 
       className={cn(
-        "group relative rounded-2xl p-6 transition-all duration-500",
+        "group relative rounded-xl md:rounded-2xl p-4 md:p-6 transition-all duration-500",
         "bg-card border border-border hover:border-primary/30",
         "hover:shadow-lg hover:-translate-y-1"
       )}
     >
       {/* Icon */}
       <div className={cn(
-        "w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110",
+        "w-11 h-11 md:w-14 md:h-14 rounded-lg md:rounded-xl flex items-center justify-center mb-3 md:mb-4 transition-transform duration-500 group-hover:scale-110",
         "bg-gradient-to-br",
         device.color
       )}>
-        <Icon className="w-7 h-7 text-white" />
+        <Icon className="w-5 h-5 md:w-7 md:h-7 text-white" />
       </div>
 
       {/* Content */}
-      <h3 className="text-lg font-bold text-foreground mb-2">{device.name}</h3>
-      <p className="text-sm text-muted-foreground mb-4">{device.description}</p>
+      <h3 className="text-base md:text-lg font-bold text-foreground mb-1 md:mb-2">{device.name}</h3>
+      <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">{device.description}</p>
 
       {/* Features */}
-      <ul className="space-y-2">
+      <ul className="space-y-1.5 md:space-y-2">
         {device.features.map((feature) => (
-          <li key={feature} className="flex items-center gap-2 text-sm text-foreground/80">
-            <Check className="w-4 h-4 text-emerald-500" />
-            {feature}
+          <li key={feature} className="flex items-start gap-2 text-xs md:text-sm text-foreground/80 leading-tight">
+            <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500 shrink-0 mt-0.5" />
+            <span>{feature}</span>
           </li>
         ))}
       </ul>
@@ -120,47 +119,47 @@ function AppStoreBadge({ type }: { type: "apple" | "google" }) {
 
 export function DevicesSection() {
   return (
-    <section id="devices" className="container mx-auto px-4 md:px-8 py-16 md:py-24">
-      <div className="text-center mb-12 space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-          <Wifi className="w-3.5 h-3.5" />
+    <section id="devices" className="container mx-auto px-4 md:px-8 py-12 md:py-24">
+      <div className="text-center mb-8 md:mb-12 space-y-3 md:space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-medium">
+          <Wifi className="w-3 h-3 md:w-3.5 md:h-3.5" />
           Cross-Platform
         </div>
-        <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+        <h2 className="text-2xl md:text-5xl font-black tracking-tight">
           Available On All Devices
         </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto md:text-lg text-balance">
+        <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-lg text-balance px-2 md:px-0">
           Watch on any screen, any time. Seamlessly switch between devices and never miss a moment.
         </p>
       </div>
 
       {/* Devices Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-        {DEVICES.map((device, index) => (
-          <DeviceCard key={device.name} device={device} index={index} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-10 md:mb-12">
+        {DEVICES.map((device) => (
+          <DeviceCard key={device.name} device={device} />
         ))}
       </div>
 
       {/* App Store Badges */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-4">Download our mobile app</p>
-        <div className="flex items-center justify-center gap-3">
+        <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">Download our mobile app</p>
+        <div className="flex items-center justify-center gap-2 md:gap-3 px-4">
           <AppStoreBadge type="apple" />
           <AppStoreBadge type="google" />
         </div>
 
         {/* Feature Highlights */}
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Download className="w-4 h-4 text-primary" />
+        <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs md:text-sm text-muted-foreground">
+          <span className="flex items-center gap-1 md:gap-1.5">
+            <Download className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
             Offline viewing
           </span>
-          <span className="flex items-center gap-1.5">
-            <Play className="w-4 h-4 text-primary" />
+          <span className="flex items-center gap-1 md:gap-1.5">
+            <Play className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
             Continue watching
           </span>
-          <span className="flex items-center gap-1.5">
-            <Wifi className="w-4 h-4 text-primary" />
+          <span className="flex items-center gap-1 md:gap-1.5">
+            <Wifi className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
             Sync across devices
           </span>
         </div>

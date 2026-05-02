@@ -113,7 +113,7 @@ function StatCard({ icon, value, suffix, label, color, delay }: StatCardProps) {
     <div
       ref={ref}
       className={cn(
-        "relative group rounded-2xl p-6 md:p-8 transition-all duration-700",
+        "relative group rounded-xl md:rounded-2xl p-4 md:p-8 transition-all duration-700",
         "border border-white/10 bg-white/[0.02] backdrop-blur-sm",
         "hover:border-white/20 hover:bg-white/[0.04]",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -121,24 +121,24 @@ function StatCard({ icon, value, suffix, label, color, delay }: StatCardProps) {
     >
       {/* Glow Effect */}
       <div className={cn(
-        "absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl",
+        "absolute inset-0 rounded-xl md:rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl",
         color
       )} />
 
       <div className="relative z-10">
         <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center mb-4",
+          "w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center mb-3 md:mb-4",
           "bg-gradient-to-br",
           color
         )}>
-          {icon}
+          <span className="scale-90 md:scale-100">{icon}</span>
         </div>
 
-        <div className="space-y-1">
-          <p className="text-3xl md:text-4xl font-black tracking-tight text-white">
+        <div className="space-y-0.5 md:space-y-1">
+          <p className="text-2xl md:text-4xl font-black tracking-tight text-white">
             <AnimatedCounter end={value} suffix={suffix} />
           </p>
-          <p className="text-sm text-white/60 font-medium uppercase tracking-wider">
+          <p className="text-xs md:text-sm text-white/60 font-medium uppercase tracking-wider leading-tight">
             {label}
           </p>
         </div>
@@ -171,7 +171,7 @@ const STATS = [
   },
   {
     icon: <Star className="w-6 h-6 text-white" />,
-    value: 4.8,
+    value: 7,
     suffix: "★",
     label: "Average Rating",
     color: "from-yellow-500 to-amber-600",

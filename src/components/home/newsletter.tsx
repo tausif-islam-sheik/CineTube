@@ -53,55 +53,54 @@ export function Newsletter() {
           </div>
 
           {/* Heading */}
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-3 md:mb-4">
             Never Miss a New Release
           </h2>
           
           {/* Subtext */}
-          <p className="text-white/60 text-lg max-w-2xl mx-auto mb-8">
+          <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto mb-6 md:mb-8 px-2">
             Get weekly picks, trailers, and exclusive early access to our biggest premieres. 
             Join 250,000+ subscribers.
           </p>
 
           {/* Form */}
           {!isSubscribed ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <form onSubmit={handleSubmit} className="max-w-md mx-auto px-2 sm:px-0">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <div className="relative flex-1">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                   <Input
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-14 pl-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary focus:ring-primary/20 rounded-xl"
+                    className="h-12 sm:h-14 pl-10 sm:pl-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary focus:ring-primary/20 rounded-lg sm:rounded-xl text-sm sm:text-base"
                     required
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  size="lg" 
-                  className="h-14 px-8 rounded-xl font-bold"
+                  className="h-12 sm:h-14 px-6 sm:px-8 rounded-lg sm:rounded-xl font-bold"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Subscribing...
+                      <span className="text-sm sm:text-base">Subscribing...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Subscribe
+                      <span className="text-sm sm:text-base">Subscribe</span>
                     </>
                   )}
                 </Button>
               </div>
 
               {/* Trust Text */}
-              <div className="flex items-center justify-center gap-4 mt-4 text-sm text-white/40">
-                <span className="flex items-center gap-1.5">
-                  <Shield className="w-4 h-4" />
+              <div className="flex items-center justify-center gap-3 sm:gap-4 mt-3 sm:mt-4 text-xs sm:text-sm text-white/40">
+                <span className="flex items-center gap-1">
+                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   No spam
                 </span>
                 <span className="w-1 h-1 rounded-full bg-white/20" />
