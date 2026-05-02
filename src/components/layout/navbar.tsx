@@ -98,7 +98,7 @@ export function Navbar() {
           : "sticky border border-white/20 bg-background/60 backdrop-blur-xl shadow-lg"
       )}
     >
-      <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8">
+      <div className="max-w-8xl mx-auto flex h-16 items-center px-4 md:px-10">
 
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-1.5 select-none shrink-0 mr-8">

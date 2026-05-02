@@ -161,12 +161,12 @@ export default function AdminOverviewPage() {
                                   <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
                                 </linearGradient>
                              </defs>
-                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground)/0.2)" />
-                             <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                             <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                             <Tooltip 
-                                contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} 
-                                itemStyle={{ color: 'hsl(var(--foreground))' }} 
+                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--muted-foreground)" strokeOpacity={0.2} />
+                             <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                             <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                             <Tooltip
+                                contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                                itemStyle={{ color: 'var(--foreground)' }}
                              />
                              <Area type="monotone" dataKey="total" stroke="var(--primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorTotal)" />
                          </AreaChart>
@@ -184,12 +184,13 @@ export default function AdminOverviewPage() {
                 <div className="h-[350px] w-full">
                      <ResponsiveContainer width="100%" height="100%">
                          <BarChart data={stats?.engagementData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground)/0.2)" />
-                             <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                             <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                             <Tooltip 
-                                cursor={{ fill: 'hsl(var(--muted))' }}
-                                contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} 
+                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--muted-foreground)" strokeOpacity={0.2} />
+                             <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                             <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                             <Tooltip
+                                cursor={{ fill: 'var(--muted)' }}
+                                contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                                itemStyle={{ color: 'var(--foreground)' }}
                              />
                              <Bar dataKey="views" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                          </BarChart>
