@@ -26,7 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Popcorn, Eye, EyeOff } from "lucide-react";
+import { Popcorn, Eye, EyeOff, Zap } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 
 const formSchema = z.object({
@@ -153,6 +153,22 @@ export default function LoginPage() {
               />
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Signing in..." : "Sign In"}
+              </Button>
+
+              {/* Demo Login Button */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-dashed border-primary/50 text-primary hover:bg-primary/10"
+                onClick={() => {
+                  form.setValue("email", "demo@cinetube.com");
+                  form.setValue("password", "demo1234567");
+                  form.handleSubmit(onSubmit)();
+                }}
+                disabled={loading}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Demo Login
               </Button>
             </form>
           </Form>

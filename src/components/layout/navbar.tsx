@@ -4,31 +4,21 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Search, Popcorn, User, LogOut, Heart,
-  Shield, Menu, X, Gift,
+  Search, Popcorn, Shield, Menu, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/discover", label: "Movies" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+// Navbar Components
+import { LoggedOutLinks } from "@/components/navbar/logged-out-links";
+import { LoggedInLinks } from "@/components/navbar/logged-in-links";
+import { AuthButtons } from "@/components/navbar/auth-buttons";
+import { UserDropdown } from "@/components/navbar/user-dropdown";
+import { MobileNav } from "@/components/navbar/mobile-nav";
 
 export function Navbar() {
   const { data: session, isPending } = useSession();
@@ -54,7 +44,9 @@ export function Navbar() {
 
   // Clear search when leaving discover
   useEffect(() => {
-    if (pathname !== "/discover") setSearchQuery("");
+    if (pathname !== "/discover") {
+      requestAnimationFrame(() => setSearchQuery(""));
+    }
   }, [pathname]);
 
   useEffect(() => {
@@ -110,25 +102,18 @@ export function Navbar() {
 
         {/* ── Center Nav Links (desktop) ── */}
         <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "px-3 py-1.5 text-sm font-semibold rounded-md transition-colors",
-                isActive(href)
-                  ? isOverlay
-                    ? "text-white underline underline-offset-10 decoration-2"
-                    : "text-primary underline underline-offset-10 decoration-2"
-                  : isOverlay
-                    ? "text-white/95 hover:text-white"
-                    : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {label}
-            </Link>
-          ))}
-
+          {isPending ? (
+            // Loading skeleton for nav links
+            <div className="flex items-center gap-1">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-5 w-16 rounded bg-muted animate-pulse" />
+              ))}
+            </div>
+          ) : session ? (
+            <LoggedInLinks isActive={isActive} isOverlay={isOverlay} />
+          ) : (
+            <LoggedOutLinks isActive={isActive} isOverlay={isOverlay} />
+          )}
         </div>
 
         {/* ── Right side ── */}
@@ -212,72 +197,13 @@ export function Navbar() {
           {!searchOpen && (
             <>
               {isPending ? (
-                <div className="h-8 w-16 rounded bg-muted animate-pulse" />
+                <div className="h-8 w-16 rounded bg-muted animate-pulse hidden sm:block" />
               ) : session ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn("flex items-center gap-2 border rounded-full pl-3 pr-1 py-1 transition-colors group", isOverlay ? "border-white/50 hover:border-white/70" : "border-foreground/50 hover:border-foreground/70")}>
-                      <User className={cn("w-3.5 h-3.5 transition-colors", isOverlay ? "text-white/80 group-hover:text-white" : "text-muted-foreground group-hover:text-foreground")} />
-                      <span className={cn("text-sm transition-colors max-w-22.5 truncate hidden sm:block", isOverlay ? "text-white/80 group-hover:text-white" : "text-foreground/80 group-hover:text-foreground")}>
-                        {session.user.name?.split(" ")[0]}
-                      </span>
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={session.user.image || ""} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">
-                          {session.user.name?.charAt(0)?.toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel className="font-normal text-xs pb-1">
-                      <span className="block font-semibold text-sm">{session.user.name}</span>
-                      <span className="text-muted-foreground text-xs">{session.user.email}</span>
-                      {isAdmin && (
-                        <span className="inline-flex mt-1.5 items-center gap-1 px-1.5 py-0.5 bg-yellow-400/10 text-yellow-400 rounded text-[10px] font-bold uppercase">
-                          <Shield className="w-2.5 h-2.5" /> Admin
-                        </span>
-                      )}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => router.push("/watchlist")}>
-                      <Heart className="w-4 h-4" /> Watchlist
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => router.push("/profile")}>
-                      <User className="w-4 h-4" /> Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => router.push("/pricing")}>
-                      <Gift className="w-4 h-4" /> Upgrade Plan
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-yellow-500 focus:text-yellow-500 focus:bg-yellow-500/10 gap-2 cursor-pointer" onClick={() => router.push("/admin")}>
-                          <Shield className="w-4 h-4" /> Admin Dashboard
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-red-400 hover:text-red-400 focus:text-red-400 focus:bg-red-400/10 gap-2 cursor-pointer"
-                      onClick={async () => { await signOut(); router.push("/login"); }}
-                    >
-                      <LogOut className="w-4 h-4" /> Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <UserDropdown session={session} isOverlay={isOverlay} isAdmin={isAdmin} />
               ) : (
-                <Link href="/login">
-                  <button className={cn(
-                    "flex items-center gap-2 border rounded-full px-4 py-1.5 text-sm transition-colors font-medium",
-                    isOverlay
-                      ? "border-white/20 text-white/80 hover:text-white hover:border-white/40"
-                      : "border-border text-foreground/80 hover:text-foreground hover:border-muted-foreground"
-                  )}>
-                    <User className="w-3.5 h-3.5" />
-                    Login
-                  </button>
-                </Link>
+                <div className="hidden sm:flex items-center gap-2">
+                  <AuthButtons isOverlay={isOverlay} />
+                </div>
               )}
             </>
           )}
@@ -297,41 +223,12 @@ export function Navbar() {
 
       {/* ── Mobile Drawer ── */}
       {mobileOpen && (
-        <div className="md:hidden bg-background/95 border-t border-border px-4 pb-4 pt-2 space-y-1 animate-in slide-in-from-top-2 fade-in duration-150">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                isActive(href)
-                  ? "text-primary font-semibold underline underline-offset-4 decoration-2"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {label}
-            </Link>
-          ))}
-
-          {isAdmin && (
-            <Link href="/admin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-yellow-400 hover:bg-yellow-400/10 transition-colors">
-              Admin Dashboard
-            </Link>
-          )}
-
-          {session && (
-             <Link href="/watchlist" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
-                Your Watchlist
-             </Link>
-          )}
-
-          {!session && (
-            <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
-              Login
-            </Link>
-          )}
-        </div>
+        <MobileNav
+          session={session}
+          isAdmin={isAdmin}
+          isActive={isActive}
+          onClose={() => setMobileOpen(false)}
+        />
       )}
     </nav>
   );

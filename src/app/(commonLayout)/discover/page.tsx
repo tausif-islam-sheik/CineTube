@@ -1,142 +1,268 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, Suspense } from "react";
-import { FilterSidebar } from "@/components/movies/filter-sidebar";
+import { useState } from "react";
+import { Search, Play, Star, TrendingUp, Award, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { MovieCard } from "@/components/shared/movie-card";
+import { SectionHeading } from "@/components/shared/section-heading";
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { useMovies } from "@/hooks/use-movies";
-import { MovieGridSkeleton } from "@/components/movies/movie-card-skeleton";
-import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { Star, Clock } from "lucide-react";
-import { useInView } from "react-intersection-observer";
 
-function DiscoverContent() {
-  const searchParams = useSearchParams();
-  const { ref, inView } = useInView();
-
-  const filters = {
-    q: searchParams.get("q") || undefined,
-    genre: searchParams.getAll("genre").length ? searchParams.getAll("genre") : undefined,
-    yearMin: searchParams.get("yearMin") ? parseInt(searchParams.get("yearMin") as string) : undefined,
-    yearMax: searchParams.get("yearMax") ? parseInt(searchParams.get("yearMax") as string) : undefined,
-    ratingMin: searchParams.get("ratingMin") ? parseFloat(searchParams.get("ratingMin") as string) : undefined,
-    sortBy: (searchParams.get("sortBy") as "rating" | "releaseYear" | "createdAt" | "title") || "createdAt",
-    order: (searchParams.get("order") as "asc" | "desc") || "desc",
-    pricing: (searchParams.get("pricing") as "FREE" | "PREMIUM") || undefined,
-  };
-
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status
-  } = useMovies(filters);
-
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, fetchNextPage, hasNextPage]);
-
-  return (
-    <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-      <FilterSidebar />
-      
-      <div className="flex-1 min-w-0">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Discover Movies</h1>
-          <p className="text-muted-foreground">Find your next cinematic journey.</p>
-        </div>
-
-        {status === "pending" ? (
-          <MovieGridSkeleton />
-        ) : status === "error" ? (
-          <div className="p-8 text-center bg-destructive/10 text-destructive rounded-lg border border-destructive/20">
-            <p>Error loading movies: {error.message}</p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6 items-stretch animate-in fade-in duration-500">
-              {data.pages.map((page, i) => (
-                page.data.map((movie) => (
-                  <Link href={`/movie/${movie.id}`} key={movie.id}>
-                    <Card className="overflow-hidden py-0 group h-full flex flex-col rounded-2xl border border-border/80 bg-card/70 transition-all hover:-translate-y-0.5 hover:ring-2 hover:ring-primary/60 hover:shadow-xl hover:shadow-primary/10">
-                      <div className="relative aspect-2/3 overflow-hidden bg-muted">
-                        {/* Fallback poster UI if no next/image available natively without domain config */}
-                        {movie.posterUrl ? (
-                          <img 
-                            src={movie.posterUrl} 
-                            alt={movie.title} 
-                            loading="lazy"
-                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105" 
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-secondary text-secondary-foreground font-semibold p-4 text-center">
-                            {movie.title}
-                          </div>
-                        )}
-                        <div className="absolute top-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded backdrop-blur-md flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          {movie.averageRating?.toFixed(1) || "N/A"}
-                        </div>
-                      </div>
-                      <CardContent className="p-4 flex-1 flex flex-col gap-2">
-                        <h3 className="font-semibold text-sm line-clamp-1">{movie.title}</h3>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>{movie.releaseYear}</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {movie.duration ? `${movie.duration}m` : "--"}
-                          </span>
-                        </div>
-                        <div className="mt-auto flex flex-wrap gap-1">
-                           {movie.genre.slice(0, 2).map((g) => (
-                              <span key={g} className="text-[10px] px-1.5 py-0.5 bg-secondary text-secondary-foreground rounded">
-                                {g}
-                              </span>
-                           ))}
-                           {movie.genre.length > 2 && (
-                               <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground rounded">
-                                  +{movie.genre.length - 2}
-                               </span>
-                           )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))
-              ))}
-            </div>
-            
-            <div ref={ref} className="w-full py-8 text-center flex items-center justify-center">
-              {isFetchingNextPage ? (
-                <div className="inline-flex items-center space-x-2">
-                   <div className="h-4 w-4 rounded-full bg-primary animate-bounce" />
-                   <div className="h-4 w-4 rounded-full bg-primary animate-bounce [animation-delay:0.2s]" />
-                   <div className="h-4 w-4 rounded-full bg-primary animate-bounce [animation-delay:0.4s]" />
-                </div>
-              ) : hasNextPage ? (
-                <p className="text-sm text-muted-foreground">Scroll down to load more</p>
-              ) : data.pages[0].meta.total === 0 ? (
-                <p className="text-lg font-medium text-muted-foreground py-10">No movies found matching your filters.</p>
-              ) : (
-                <p className="text-sm text-muted-foreground">You&apos;ve reached the end of the lineup.</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+const GENRES = [
+  "All",
+  "Action",
+  "Drama",
+  "Horror",
+  "Sci-Fi",
+  "Romance",
+  "Animation",
+  "Documentary",
+];
 
 export default function DiscoverPage() {
+  const [activeGenre, setActiveGenre] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isGenreSticky, setIsGenreSticky] = useState(false);
+
+  const { data: moviesData, isLoading } = useMovies({
+    sortBy: "createdAt",
+    order: "desc",
+  });
+
+  const allMovies = moviesData?.pages?.flatMap((page) => page.data) || [];
+
+  const filteredMovies =
+    activeGenre === "All"
+      ? allMovies
+      : allMovies.filter((movie) =>
+          movie.genre.some((g) => g.toLowerCase() === activeGenre.toLowerCase())
+        );
+
+  const trendingMovies = allMovies.slice(0, 8);
+  const editorPicks = allMovies.filter((m) => m.averageRating && m.averageRating >= 8).slice(0, 8);
+  const mostWatched = [...allMovies].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0)).slice(0, 5);
+  const hiddenGems = allMovies.filter((m) => m.averageRating && m.averageRating >= 7.5 && m.averageRating < 8).slice(0, 8);
+
   return (
-    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
-      <DiscoverContent />
-    </Suspense>
+    <div className="min-h-screen bg-background">
+      {/* Hero Banner */}
+      <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        </div>
+        
+        <div className="relative h-full flex items-center">
+          <div className="max-w-8xl mx-auto px-4 md:px-10 w-full">
+            <div className="max-w-2xl space-y-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
+                Discover Your Next{" "}
+                <span className="text-primary">Favorite</span>
+              </h1>
+              <p className="text-lg md:text-xl text-white/70">
+                Explore thousands of movies and find the perfect film for your mood.
+              </p>
+              
+              {/* Search Bar */}
+              <div className="relative max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search movies, genres, actors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/50 text-lg rounded-full"
+                />
+                <Button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-6"
+                  asChild
+                >
+                  <Link href={`/discover?q=${encodeURIComponent(searchQuery)}`}>
+                    Search
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Genre Filter Tabs - Sticky */}
+      <div
+        className={cn(
+          "sticky top-16 z-40 bg-background/95 backdrop-blur-xl border-b border-border transition-shadow",
+          isGenreSticky && "shadow-lg"
+        )}
+      >
+        <div className="max-w-8xl mx-auto px-4 md:px-10 py-4">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0">
+            {GENRES.map((genre) => (
+              <button
+                key={genre}
+                onClick={() => setActiveGenre(genre)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
+                  activeGenre === genre
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                )}
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-8xl mx-auto px-4 md:px-10 py-10 space-y-16">
+        {/* Trending This Week */}
+        <section>
+          <SectionHeading
+            title="Trending This Week"
+            subtitle="What's hot right now"
+            action={{ label: "View All", href: "/movies" }}
+          />
+          {isLoading ? (
+            <LoadingSkeleton type="row" count={6} />
+          ) : (
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 md:-mx-10 md:px-10">
+              {trendingMovies.map((movie) => (
+                <div key={movie.id} className="flex-shrink-0 w-40 md:w-48">
+                  <MovieCard movie={movie} variant="portrait" />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Editor's Picks */}
+        <section>
+          <SectionHeading
+            title="Editor's Picks"
+            subtitle="Curated by our film experts"
+            badge="sparkle"
+            action={{ label: "View All", href: "/movies" }}
+          />
+          {isLoading ? (
+            <LoadingSkeleton count={4} />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {editorPicks.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} variant="portrait" />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Most Watched - Ranked List */}
+        <section>
+          <SectionHeading
+            title="Most Watched"
+            subtitle="Top 5 fan favorites"
+            action={{ label: "Full Rankings", href: "/movies" }}
+          />
+          {isLoading ? (
+            <LoadingSkeleton count={5} />
+          ) : (
+            <div className="space-y-4">
+              {mostWatched.map((movie, index) => (
+                <div
+                  key={movie.id}
+                  className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="text-4xl font-black text-primary/20 w-12 text-center">
+                    #{index + 1}
+                  </div>
+                  <div className="relative w-16 aspect-[2/3] rounded-lg overflow-hidden">
+                    {movie.posterUrl ? (
+                      <img
+                        src={movie.posterUrl}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-xs">
+                        {movie.title}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-lg truncate">{movie.title}</h3>
+                    <p className="text-muted-foreground text-sm">
+                      {movie.releaseYear} • {movie.genre.slice(0, 3).join(", ")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 px-3 py-1 bg-yellow-400/10 rounded-full">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="font-bold text-yellow-400">
+                        {movie.averageRating?.toFixed(1)}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      asChild
+                    >
+                      <Link href={`/movie/${movie.id}`}>
+                        <Play className="w-4 h-4 mr-1" />
+                        Watch
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Hidden Gems */}
+        <section>
+          <SectionHeading
+            title="Hidden Gems"
+            subtitle="Lesser known but highly rated"
+            action={{ label: "Explore More", href: "/movies" }}
+          />
+          {isLoading ? (
+            <LoadingSkeleton count={4} />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {hiddenGems.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} variant="portrait" />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* CTA Banner */}
+        <section className="relative rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/80" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200')] bg-cover bg-center opacity-20 mix-blend-overlay" />
+          
+          <div className="relative px-8 py-12 md:py-16 text-center">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+              Sign Up Free to Unlock Full Access
+            </h2>
+            <p className="text-white/80 text-lg mb-6 max-w-xl mx-auto">
+              Create a free account to save your favorites, write reviews, and get personalized recommendations.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="secondary" className="px-8" asChild>
+                <Link href="/register">Create Free Account</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 border-white text-white hover:bg-white/10"
+                asChild
+              >
+                <Link href="/pricing">View Plans</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }

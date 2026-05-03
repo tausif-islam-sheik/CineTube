@@ -84,34 +84,36 @@ export default function PricingPage() {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
         {/* Monthly Plan */}
-        <Card className="relative flex flex-col transition-all hover:border-primary/50">
-           <CardHeader>
-              <CardTitle className="text-2xl">Monthly</CardTitle>
-              <CardDescription>Flexible rolling subscription.</CardDescription>
-              <div className="mt-4 font-bold text-4xl">
+        <Card className="relative flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 bg-linear-to-b from-background to-muted/30 border-border/50">
+           <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-semibold">Monthly</CardTitle>
+              <CardDescription className="text-muted-foreground/80">Flexible rolling subscription.</CardDescription>
+              <div className="mt-6 font-bold text-4xl tracking-tight">
                  $9.99<span className="text-lg text-muted-foreground font-normal">/mo</span>
               </div>
            </CardHeader>
-           <CardContent className="flex-1">
-              <ul className="space-y-3">
+           <CardContent className="flex-1 pb-6">
+              <ul className="space-y-4">
                  {[
-                   "Ad-free streaming", 
-                   "Unlock 4K Ultra HD", 
-                   "Download for offline viewing", 
+                   "Ad-free streaming",
+                   "Unlock 4K Ultra HD",
+                   "Download for offline viewing",
                    "Cancel anytime"
                  ].map(feature => (
-                    <li key={feature} className="flex items-center gap-2">
-                       <Check className="w-5 h-5 text-green-500 shrink-0" />
-                       <span className="text-sm">{feature}</span>
+                    <li key={feature} className="flex items-center gap-3">
+                       <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/10">
+                          <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                       </div>
+                       <span className="text-sm text-foreground/90">{feature}</span>
                     </li>
                  ))}
               </ul>
            </CardContent>
-           <CardFooter>
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                size="lg" 
+           <CardFooter className="pt-2">
+              <Button
+                variant="outline"
+                className="w-full h-12 font-medium transition-all hover:bg-primary hover:text-primary-foreground"
+                size="lg"
                 disabled={loading !== null}
                 onClick={() => handleCheckout("monthly")}
               >
@@ -121,36 +123,38 @@ export default function PricingPage() {
         </Card>
 
         {/* Yearly Plan */}
-        <Card className="relative flex flex-col border-primary shadow-lg shadow-primary/20 scale-100 md:scale-105 z-10">
-           <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest pt-6">
+        <Card className="relative flex flex-col h-full border-primary/50 shadow-2xl shadow-primary/25 scale-100 md:scale-105 z-10 bg-linear-to-b from-primary/5 via-background to-background overflow-visible">
+           <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-bl-xl rounded-tr-xl uppercase tracking-wider shadow-lg shadow-primary/30">
               Best Value
            </div>
-           <CardHeader>
-              <CardTitle className="text-2xl">Yearly</CardTitle>
-              <CardDescription>Save big on a full year.</CardDescription>
-              <div className="mt-4 font-bold text-4xl">
+           <CardHeader className="pb-6 pt-2">
+              <CardTitle className="text-2xl font-semibold">Yearly</CardTitle>
+              <CardDescription className="text-muted-foreground/80">Save big on a full year.</CardDescription>
+              <div className="mt-6 font-bold text-4xl tracking-tight">
                  $79.99<span className="text-lg text-muted-foreground font-normal">/yr</span>
               </div>
            </CardHeader>
-           <CardContent className="flex-1">
-              <ul className="space-y-3">
+           <CardContent className="flex-1 pb-6">
+              <ul className="space-y-4">
                  {[
                    "Everything in Monthly",
                    "Save over 30%",
                    "Exclusive VIP community access",
                    "Priority support"
                  ].map(feature => (
-                    <li key={feature} className="flex items-center gap-2">
-                       <Check className="w-5 h-5 text-primary shrink-0" />
-                       <span className="text-sm">{feature}</span>
+                    <li key={feature} className="flex items-center gap-3">
+                       <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10">
+                          <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                       </div>
+                       <span className="text-sm text-foreground/90">{feature}</span>
                     </li>
                  ))}
               </ul>
            </CardContent>
-           <CardFooter>
-              <Button 
-                className="w-full" 
-                size="lg" 
+           <CardFooter className="pt-2">
+              <Button
+                className="w-full h-12 font-medium shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+                size="lg"
                 disabled={loading !== null}
                 onClick={() => handleCheckout("yearly")}
               >

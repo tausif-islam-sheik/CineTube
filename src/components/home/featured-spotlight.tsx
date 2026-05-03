@@ -70,7 +70,7 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
         <div className="absolute inset-0">
           {currentMovie.backdropUrl || currentMovie.posterUrl ? (
             <img
-              src={currentMovie.backdropUrl || currentMovie.posterUrl}
+              src={currentMovie.backdropUrl || currentMovie.posterUrl || ""}
               alt={currentMovie.title}
               className="w-full h-full object-cover blur-sm scale-110 brightness-[0.4] transition-all duration-1000"
             />
@@ -126,7 +126,7 @@ export function FeaturedSpotlight({ movies }: FeaturedSpotlightProps) {
 
             {/* Description */}
             <p className="text-white/70 text-sm md:text-base lg:text-lg line-clamp-2 md:line-clamp-3 max-w-xl">
-              {currentMovie.plot || "An epic cinematic journey that pushes the boundaries of storytelling. Experience breathtaking visuals and a gripping narrative that will keep you on the edge of your seat."}
+              {currentMovie.description || "An epic cinematic journey that pushes the boundaries of storytelling. Experience breathtaking visuals and a gripping narrative that will keep you on the edge of your seat."}
             </p>
 
             {/* CTAs */}
