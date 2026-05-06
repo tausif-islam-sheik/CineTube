@@ -4,11 +4,11 @@
 
 **A modern, Full-Stack movie streaming and discovery platform**
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
-[![Stripe](https://img.shields.io/badge/Stripe-Payments-635bff?logo=stripe)](https://stripe.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Next.js](https://img.shields.io/badge/next.js@16-0a0a0a?style=for-the-badge&logo=next.js&logoColor=e5e5e5)
+![TypeScript](https://img.shields.io/badge/typescript@5-10193e?style=for-the-badge&logo=typescript&logoColor=7aa3ff)
+![Express.js](https://img.shields.io/badge/express.js-141414?style=for-the-badge&logo=express&logoColor=c0c0c0)
+![PostgreSQL](https://img.shields.io/badge/postgresql-071525?style=for-the-badge&logo=postgresql&logoColor=6db3e8)
+![MIT](https://img.shields.io/badge/mit_license-140d00?style=for-the-badge&logoColor=f59e0b)
 
 [Live Demo](https://cinetube-omega.vercel.app) · [Backend Repository](https://github.com/tausif-islam-sheik/CineTube-Server)
 
@@ -18,7 +18,29 @@
 
 ## 📖 Overview
 
-CineTube is a movie streaming portal built with a modern full-stack architecture. Users can discover trending, popular, and upcoming movies, build personal watchlists, and unlock premium content through a Stripe-powered subscription system — all wrapped in a responsive, theme-aware UI.
+**CineTube** is a full-stack movie streaming platform where users can discover trending, popular, and upcoming films, manage a personal watchlist, and access premium content through a secure Stripe-powered subscription. All within a sleek, responsive, and theme-aware interface.
+
+---
+
+## ❓ Problem Statement
+
+Movie enthusiasts face several challenges when trying to stream content online:
+- **Fragmented Discovery** — Movies are scattered across multiple platforms, making it hard to find what to watch
+- **No Centralized Watchlist** — Users struggle to keep track of movies they want to watch later
+- **Complex Payment Systems** — Managing subscriptions across different services is inconvenient
+- **Poor Mobile Experience** — Many streaming platforms aren't optimized for mobile viewing
+- **Lack of Admin Tools** — Content creators need better tools to manage their movie catalog
+
+---
+
+## 💡 Solution Overview
+
+CineTube solves these problems by providing:
+- **Unified Discovery Hub** — Browse trending, popular, and upcoming movies in one place with smart filtering and search
+- **Personal Watchlist** — Save movies with one click and manage your viewing queue effortlessly
+- **Seamless Payments** — Integrated Stripe checkout for quick, secure subscription upgrades
+- **Responsive Design** — Optimized experience across desktop, tablet, and mobile devices
+- **Admin Dashboard** — Complete content management system for adding, editing, and organizing movies
 
 ---
 
@@ -60,26 +82,108 @@ CineTube is a movie streaming portal built with a modern full-stack architecture
 
 ```
 cinetube/
-├── src/app/                    # Next.js pages and routes
-│   ├── (commonLayout)/         # Pages with shared layout
-│   │   ├── (auth)/             # Login, register, forgot-password
-│   │   ├── (admin)/            # Admin dashboard
-│   │   └── movies/             # Movie listing pages
-│   └── api/                    # API routes (Stripe checkout)
-├── src/components/             # React components
-│   ├── layout/                 # Navbar, footer
-│   ├── movie/                  # Movie cards, lists
-│   └── ui/                     # shadcn/ui components
-├── src/lib/                    # Utilities and configurations
-│   ├── auth-client.ts          # Better Auth setup
-│   └── utils.ts                # Helper functions
-├── src/hooks/                  # Custom React hooks
-└── public/                     # Static images and assets
+├── src/app/                           # Next.js pages and routes
+│   ├── (commonLayout)/                # Pages with shared layout
+│   │   ├── (auth)/                    # Login, register, forgot-password
+│   │   ├── about/                     # About page
+│   │   ├── binge/                     # Binge zone page
+│   │   ├── checkout/                  # Stripe checkout
+│   │   ├── contact/                   # Contact page
+│   │   ├── discover/                    # Discover movies
+│   │   ├── free/                      # Free movies section
+│   │   ├── movie/                     # Individual movie details
+│   │   ├── movies/                    # Movie listing
+│   │   ├── my-reviews/                # User reviews
+│   │   ├── new-releases/              # New releases page
+│   │   ├── pricing/                   # Subscription plans
+│   │   ├── profile/                   # User profile
+│   │   ├── recommended/               # Recommendations
+│   │   ├── series/                    # TV series page
+│   │   ├── trailers/                  # Movie trailers
+│   │   └── watchlist/                 # User watchlist
+│   ├── (dashboardLayout)/              # Admin dashboard routes
+│   ├── layout.tsx                     # Root layout
+│   └── globals.css                    # Global styles
+├── src/components/                    # React components
+│   ├── admin/                         # Admin panel components
+│   ├── home/                          # Homepage sections
+│   ├── layout/                        # Navbar, footer
+│   ├── movies/                        # Movie-related components
+│   ├── navbar/                        # Navigation components
+│   ├── providers/                     # Context providers
+│   ├── reviews/                       # Review components
+│   ├── shared/                        # Shared/reusable components
+│   ├── ui/                            # shadcn/ui components
+│   └── watchlist/                     # Watchlist components
+├── src/hooks/                         # Custom React hooks
+├── src/lib/                           # Utilities and configurations
+├── src/types/                         # TypeScript type definitions
+└── public/                            # Static images and assets
 ```
 
 ---
 
-## 📜 License
+## � Setup Instructions
+
+### Prerequisites
+- Node.js 18+ and pnpm/npm/yarn
+- Backend API running ([CineTube Server](https://github.com/tausif-islam-sheik/CineTube-Server))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/tausif-islam-sheik/CineTube.git
+   cd cinetube
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in your environment variables (see below).
+
+4. **Run the development server**
+   ```bash
+   pnpm dev
+   ```
+
+5. **Open in browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Build for Production
+```bash
+pnpm build
+pnpm start
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_BACKEND_URL` | Backend API base URL (e.g., `http://localhost:5000`) | ✅ Yes |
+| `NEXT_PUBLIC_APP_URL` | Your app URL (e.g., `http://localhost:3000`) | ✅ Yes |
+
+### Example `.env.local`
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+> ⚠️ **Note**: Never commit your `.env.local` file to version control. It's already added to `.gitignore`.
+
+---
+
+## �� License
 
 This project is licensed under the [MIT License](LICENSE).
 
@@ -87,22 +191,10 @@ This project is licensed under the [MIT License](LICENSE).
 
 <div align="center">
 
-Made with ❤️ by [Tausif Islam Sheik](https://github.com/tausif-islam-sheik)
+Made with by [Tausif Islam Sheik](https://github.com/tausif-islam-sheik)
 
 </div>
 
-<img width="1920" height="5895" alt="CineTube" src="https://github.com/user-attachments/assets/a1cb1e47-186b-4e78-8f0f-85a15bd9488f" />
-
-<img width="1920" height="1968" alt="CineTube-Cinematic-Streaming-04-25-2026_06_46_PM" src="https://github.com/user-attachments/assets/2e537d42-25e5-4220-9e3d-790c18c9b9fc" />
-
-<img width="1920" height="2068" alt="CineTube-Cinematic-Streaming-04-25-2026_06_47_PM" src="https://github.com/user-attachments/assets/07b619ef-861f-4bbd-b382-44514d3db5e0" />
-
-<img width="1920" height="931" alt="CineTube-Cinematic-Streaming-04-25-2026_06_48_PM" src="https://github.com/user-attachments/assets/9bc3f139-c552-4348-9020-00097b38149e" />
-
-<img width="1920" height="922" alt="CineTube-Cinematic-Streaming-04-25-m" src="https://github.com/user-attachments/assets/0963d5de-c220-4cc8-9a23-0418cbe53738" />
-
-<img width="1920" height="1126" alt="CineTube-Cinematic-Streaming-04-25-2026_06_49_PM" src="https://github.com/user-attachments/assets/97fe6f6d-067b-49d1-b9c8-dde2ed46ed0e" />
-
-
+![CineTube Screenshot](CineTube-Cinematic-Streaming-05-06-2026_07_46_PM.png)
 
 
