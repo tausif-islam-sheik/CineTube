@@ -195,6 +195,10 @@ Made with by [Tausif Islam Sheik](https://github.com/tausif-islam-sheik)
 
 </div>
 
-![CineTube Screenshot](CineTube-Cinematic-Streaming-05-06-2026_07_46_PM.png)
+## 📸 Screenshot
+
+<img width="1152" height="8831" alt="CineTube" src="https://github.com/user-attachments/assets/8cd1c961-3a3f-4c53-9cec-234a4c2a95c0" />
+
+
 
 
