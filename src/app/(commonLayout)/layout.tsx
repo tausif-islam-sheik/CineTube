@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { ScrollToTop } from "@/components/shared/scroll-to-top";
 
 export default function CommonLayout({
   children,
@@ -15,6 +16,7 @@ export default function CommonLayout({
         {children}
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
