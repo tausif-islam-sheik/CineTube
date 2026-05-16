@@ -33,7 +33,7 @@ function ReleaseCard({ movie }: ReleaseCardProps) {
         <div className="relative aspect-[16/10] overflow-hidden">
           {movie.backdropUrl || movie.posterUrl ? (
             <img
-              src={movie.backdropUrl || movie.posterUrl}
+              src={movie.backdropUrl || movie.posterUrl || ""}
               alt={movie.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
             />

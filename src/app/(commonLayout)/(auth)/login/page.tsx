@@ -26,7 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Popcorn, Eye, EyeOff, Zap } from "lucide-react";
+import { Popcorn, Eye, EyeOff, Zap, Shield } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 
 const formSchema = z.object({
@@ -155,21 +155,40 @@ export default function LoginPage() {
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
 
-              {/* Demo Login Button */}
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-dashed border-primary/50 text-primary hover:bg-primary/10"
-                onClick={() => {
-                  form.setValue("email", "demo@cinetube.com");
-                  form.setValue("password", "demo1234567");
-                  form.handleSubmit(onSubmit)();
-                }}
-                disabled={loading}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Demo Login
-              </Button>
+              {/* Demo Login Buttons */}
+              <div className="space-y-2">
+                <p className="text-center text-xs text-muted-foreground font-medium tracking-wide uppercase">Quick Demo Access</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-dashed border-primary/50 text-primary hover:bg-primary/10"
+                    onClick={() => {
+                      form.setValue("email", "demo@cinetube.com");
+                      form.setValue("password", "demo1234567");
+                      form.handleSubmit(onSubmit)();
+                    }}
+                    disabled={loading}
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    User Demo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-dashed border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                    onClick={() => {
+                      form.setValue("email", "admin@cinetube.com");
+                      form.setValue("password", "Admin@CineTube.com777");
+                      form.handleSubmit(onSubmit)();
+                    }}
+                    disabled={loading}
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Admin Demo
+                  </Button>
+                </div>
+              </div>
             </form>
           </Form>
 

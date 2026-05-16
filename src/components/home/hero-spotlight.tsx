@@ -69,7 +69,7 @@ export function HeroSpotlight({ movie, spotlightMovies, onMovieSelect }: HeroSpo
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         {movie.backdropUrl || movie.posterUrl ? (
           <img
-            src={movie.backdropUrl || movie.posterUrl}
+            src={movie.backdropUrl || movie.posterUrl || ""}
             alt={movie.title}
             className="w-full h-full object-cover opacity-90 contrast-[1.05] brightness-[0.75]"
           />
