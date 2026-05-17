@@ -4,47 +4,14 @@ import { ArrowRight, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { BLOG_POSTS } from "@/data/blog-posts";
 
 /* ===== SECTION: Blog / What's New ===== */
 /* Table of Contents:
-   - Blog post data
    - BlogCard Component
    - BlogSection Component
    - Features: 3-column grid, category tags, excerpts
 */
-
-const BLOG_POSTS = [
-  {
-    id: 1,
-    title: "Top 10 Hidden Gems You Missed in 2024",
-    excerpt: "Our editors scour through thousands of titles to bring you the most underrated masterpieces that flew under the radar this year.",
-    category: "Top Lists",
-    date: "Jan 15, 2024",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=60",
-    readTime: "5 min read",
-    color: "from-purple-500 to-indigo-600",
-  },
-  {
-    id: 2,
-    title: "Interview: Director Sarah Chen on Her Latest Thriller",
-    excerpt: "We sat down with the visionary director to discuss her creative process, the challenges of modern filmmaking, and what's next.",
-    category: "Interviews",
-    date: "Jan 12, 2024",
-    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=60",
-    readTime: "8 min read",
-    color: "from-primary to-red-600",
-  },
-  {
-    id: 3,
-    title: "New Arrivals This Week: January Edition",
-    excerpt: "Discover the hottest movies and series landing on CineTube this week. From blockbuster hits to indie darlings, we've got you covered.",
-    category: "New Releases",
-    date: "Jan 10, 2024",
-    image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=60",
-    readTime: "4 min read",
-    color: "from-emerald-500 to-teal-600",
-  },
-];
 
 interface BlogCardProps {
   post: typeof BLOG_POSTS[0];
@@ -102,7 +69,7 @@ function BlogCard({ post, index }: BlogCardProps) {
 
         {/* Read More Link */}
         <Link 
-          href="#" 
+          href={`/blog/${post.slug}`} 
           className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:gap-2 transition-all"
         >
           Read More
@@ -130,7 +97,7 @@ export function BlogSection() {
           </p>
         </div>
         <Link 
-          href="#" 
+          href="/blog" 
           className="text-sm font-bold text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
         >
           View All Articles →
